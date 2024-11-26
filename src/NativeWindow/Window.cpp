@@ -103,7 +103,9 @@ namespace NativeWindow
         // Set size again after window creation to avoid some bug.
         SetSize(width, height);
 
-        OnWindowCreated();
+        // Callback
+        if (_onWindowCreated != nullptr)
+            _onWindowCreated();
 
         return true;
     }
@@ -249,7 +251,9 @@ namespace NativeWindow
 
         _pWindowState->cursorVisible = show;
         ::SetCursor(show ? static_cast<HCURSOR>(_pWindowState->hCursor) : nullptr);
-        OnCursorVisibleStateChange();
+
+        if (_onWindowCursorVisibleChanged != nullptr)
+            _onWindowCursorVisibleChanged(show);
     }
 
     void Window::SetCursorLimitedInWindow(bool capture)
@@ -269,6 +273,51 @@ namespace NativeWindow
         return _pWindowState->cursorInsideWindow;
     }
 
+    void Window::SetCallbackOnWindowCreated(const std::function<void()>& callback)
+    {
+        _onWindowCreated = callback;
+    }
+
+    void Window::SetCallbackOnWindowClosed(const std::function<void()>& callback)
+    {
+        _onWindowClosed = callback;
+    }
+
+    void Window::SetCallbackOnWindowPreDestroyed(const std::function<void()>& callback)
+    {
+        _onWindowPreDestroyed = callback;
+    }
+
+    void Window::SetCallbackOnWindowPostDestroyed(const std::function<void()>& callback)
+    {
+        _onWindowPostDestroyed = callback;
+    }
+
+    void Window::SetCallbackOnWindowMessagePreProcess(const std::function<bool(uint32_t, void*, void*, int*)>& callback)
+    {
+        _onWindowMessagePreProcess = callback;
+    }
+
+    void Window::SetCallbackOnWindowResize(const std::function<void(int, int)>& callback)
+    {
+        _onWindowResize = callback;
+    }
+
+    void Window::SetCallbackOnWindowFocusChanged(const std::function<void(bool)>& callback)
+    {
+        _onWindowFocusChanged = callback;
+    }
+
+    void Window::SetCallbackOnWindowCursorEnteredOrLeaved(const std::function<void(bool)>& callback)
+    {
+        _onWindowCursorEnteredOrLeaved = callback;
+    }
+
+    void Window::SetCallbackOnWindowCursorVisibleChanged(const std::function<void(bool)>& callback)
+    {
+        _onWindowCursorVisibleChanged = callback;
+    }
+
     bool Window::IsCursorVisible() const
     {
         if (_pWindowState == nullptr)
@@ -285,28 +334,24 @@ namespace NativeWindow
         return false;
     }
 
-    void Window::OnWindowCreated()
-    {
-    }
-
-    bool Window::NativeWindowEventPreProcess(uint32_t message, void* wpara, void* lpara, int* result)
-    {
-        *result = 0;
-        return false;
-    }
-
     void Window::OnWindowClose()
     {
         if (_pWindowState == nullptr)
             return;
 
-        ::DestroyWindow(static_cast<HWND>(_pWindowState->hWindow));
+        if (_onWindowClosed == nullptr)
+            Destroy();
+        else
+            _onWindowClosed();
     }
 
     void Window::OnWindowPreDestroy()
     {
         if (_pWindowState == nullptr)
             return;
+
+        if (_onWindowPreDestroyed != nullptr)
+            _onWindowPreDestroyed();
 
         SetCursorVisible(true);
         ::ReleaseCapture();
@@ -332,30 +377,9 @@ namespace NativeWindow
 
         if (gGlobalWindowsCount == 0)
             UnRegisterWindowClass();
-    }
 
-    void Window::OnWindowResize(int width, int height)
-    {
-    }
-
-    void Window::OnWindowGetFocus()
-    {
-    }
-
-    void Window::OnWindowLostFocus()
-    {
-    }
-
-    void Window::OnMouseEnterWindow()
-    {
-    }
-
-    void Window::OnMouseLeaveWindow()
-    {
-    }
-
-    void Window::OnCursorVisibleStateChange()
-    {
+        if (_onWindowPostDestroyed != nullptr)
+            _onWindowPostDestroyed();
     }
 
     void Window::SetTitle(const std::string& title)
@@ -466,10 +490,14 @@ namespace NativeWindow
         if (_pWindowState == nullptr)
             return 0;
 
-        int ret;
-        bool blockProcess = NativeWindowEventPreProcess(message, wpara, lpara, &ret);
-        if (blockProcess)
-            return ret;
+        int ret = 0;
+        if (_onWindowMessagePreProcess != nullptr)
+        {
+            // ReSharper disable once CppTooWideScope
+            const bool blockProcess = _onWindowMessagePreProcess(message, wpara, lpara, &ret);
+            if (blockProcess)
+                return ret;
+        }
 
         // WM_CLOSE in DefWindowProcW will cause WM_DESTROY sent.
         if (message == WM_CLOSE)
@@ -523,20 +551,23 @@ namespace NativeWindow
                 {
                     _pWindowState->lastWidth = newWidth;
                     _pWindowState->lastHeight = newHeight;
-                    OnWindowResize(_pWindowState->lastWidth, _pWindowState->lastHeight);
+                    if (_onWindowResize != nullptr)
+                        _onWindowResize(_pWindowState->lastWidth, _pWindowState->lastHeight);
                 }
                 break;
             }
             case WM_SETFOCUS:
             {
                 SetCursorLimitedInWindowInternal(_pWindowState->cursorLimitedInWindow);
-                OnWindowGetFocus();
+                if (_onWindowFocusChanged != nullptr)
+                    _onWindowFocusChanged(true);
                 break;
             }
             case WM_KILLFOCUS:
             {
                 SetCursorLimitedInWindowInternal(false);
-                OnWindowLostFocus();
+                if (_onWindowFocusChanged != nullptr)
+                    _onWindowFocusChanged(false);
                 break;
             }
             case WM_MOUSEMOVE:
@@ -558,7 +589,8 @@ namespace NativeWindow
                 if (!_pWindowState->cursorInsideWindow)
                 {
                     _pWindowState->cursorInsideWindow = true;
-                    OnMouseEnterWindow();
+                    if (_onWindowCursorEnteredOrLeaved != nullptr)
+                        _onWindowCursorEnteredOrLeaved(true);
                 }
                 break;
             }
@@ -569,7 +601,8 @@ namespace NativeWindow
                 if (_pWindowState->cursorInsideWindow)
                 {
                     _pWindowState->cursorInsideWindow = false;
-                    OnMouseLeaveWindow();
+                    if (_onWindowCursorEnteredOrLeaved != nullptr)
+                        _onWindowCursorEnteredOrLeaved(false);
                 }
                 break;
             }

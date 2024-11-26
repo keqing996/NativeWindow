@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
 #include <string>
 #include <optional>
 #include <memory>
@@ -13,11 +14,11 @@ namespace NativeWindow
 {
     class NativeWindowUtility;
 
-    class Window: Utility::NonCopyable
+    class Window final: Utility::NonCopyable
     {
     public:
         Window();
-        virtual ~Window();
+        ~Window();
 
     public:
         /// Create window instance.
@@ -83,27 +84,39 @@ namespace NativeWindow
         /// Get is cursor inside window now (frame not included).
         bool IsCursorInsideWindow() const;
 
-    protected:
-        virtual void OnWindowCreated();
+        void SetCallbackOnWindowCreated(const std::function<void()>& callback);
+
+        /// Called when window received WM_CLOSE, if this callback is not settle,
+        /// default behaviour is to call Destroy(). If this callback settle by
+        /// user, user should call Destroy() to make window really closed.
+        void SetCallbackOnWindowClosed(const std::function<void()>& callback);
+
+        void SetCallbackOnWindowPreDestroyed(const std::function<void()>& callback);
+
+        void SetCallbackOnWindowPostDestroyed(const std::function<void()>& callback);
 
         /// Called when windows messages received.
-        /// @param message Windows message.
-        /// @param wpara WPARAM.
-        /// @param lpara LPARAM.
-        /// @param result If block original message process, return value of message.
-        /// @return Should block original message process.
-        virtual bool NativeWindowEventPreProcess(uint32_t message, void* wpara, void* lpara, int* result);
-        virtual void OnWindowClose();
-        virtual void OnWindowPreDestroy();
-        virtual void OnWindowPostDestroy();
-        virtual void OnWindowResize(int width, int height);
-        virtual void OnWindowGetFocus();
-        virtual void OnWindowLostFocus();
-        virtual void OnMouseEnterWindow();
-        virtual void OnMouseLeaveWindow();
-        virtual void OnCursorVisibleStateChange();
+        ///
+        /// - uint32_t: message Windows message.
+        /// - void*: wpara WPARAM.
+        /// - void*: lpara LPARAM.
+        /// - int*: result If block original message process, return value of message.
+        ///
+        /// Returned bool: Should block original message process, should be false in most cases.
+        void SetCallbackOnWindowMessagePreProcess(const std::function<bool(uint32_t, void*, void*, int*)>& callback);
+
+        void SetCallbackOnWindowResize(const std::function<void(int, int)>& callback);
+
+        void SetCallbackOnWindowFocusChanged(const std::function<void(bool)>& callback);
+
+        void SetCallbackOnWindowCursorEnteredOrLeaved(const std::function<void(bool)>& callback);
+
+        void SetCallbackOnWindowCursorVisibleChanged(const std::function<void(bool)>& callback);
 
     private:
+        void OnWindowClose();
+        void OnWindowPreDestroy();
+        void OnWindowPostDestroy();
         int WindowEventProcess(uint32_t message, void* wpara, void* lpara);
         void WindowEventProcessInternal(uint32_t message, void* wpara, void* lpara);
         void SetCursorLimitedInWindowInternal(bool doCapture);
@@ -114,6 +127,16 @@ namespace NativeWindow
 
     private:
         std::unique_ptr<WindowState> _pWindowState = nullptr;
+
+        std::function<void()> _onWindowCreated = nullptr;
+        std::function<bool(uint32_t, void*, void*, int*)> _onWindowMessagePreProcess = nullptr;
+        std::function<void()> _onWindowClosed = nullptr;
+        std::function<void()> _onWindowPreDestroyed = nullptr;
+        std::function<void()> _onWindowPostDestroyed = nullptr;
+        std::function<void(int,int)> _onWindowResize = nullptr;
+        std::function<void(bool)> _onWindowFocusChanged = nullptr;
+        std::function<void(bool)> _onWindowCursorEnteredOrLeaved = nullptr;
+        std::function<void(bool)> _onWindowCursorVisibleChanged = nullptr;
 
     private:
         static void RegisterWindowClass();
