@@ -278,6 +278,11 @@ namespace NativeWindow
         _onWindowCreated = callback;
     }
 
+    void Window::SetCallbackOnWindowTryToClose(const std::function<bool()>& callback)
+    {
+        _onWindowTryToClose = callback;
+    }
+
     void Window::SetCallbackOnWindowClosed(const std::function<void()>& callback)
     {
         _onWindowClosed = callback;
@@ -344,10 +349,15 @@ namespace NativeWindow
         if (_pWindowState == nullptr)
             return;
 
-        if (_onWindowClosed == nullptr)
-            Destroy();
-        else
+        bool doClose = true;
+        if (_onWindowTryToClose != nullptr)
+            doClose = _onWindowTryToClose();
+
+        if (doClose)
+        {
             _onWindowClosed();
+            Destroy();
+        }
     }
 
     void Window::OnWindowPreDestroy()

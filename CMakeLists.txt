@@ -12,7 +12,13 @@ target_include_directories  (native_window PUBLIC ./include/)
 option (ENABLE_NATIVE_WINDOW_TEST OFF)
 
 if (ENABLE_NATIVE_WINDOW_TEST)
-    add_executable          (test_native_window test/NativeWindowTest.cpp)
-    target_link_libraries   (test_native_window PUBLIC native_window)
-    set_target_properties   (test_native_window PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
+    add_executable          (test_create test/TestWindowCreate.cpp)
+    target_link_libraries   (test_create PUBLIC native_window)
+    set_target_properties   (test_create PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
+
+    add_executable          (test_msg_recv test/TestMessageReceived.cpp)
+    target_link_libraries   (test_msg_recv PUBLIC native_window)
+
+    add_executable          (test_callback test/TestCallback.cpp)
+    target_link_libraries   (test_callback PUBLIC native_window)
 endif ()

@@ -27,7 +27,7 @@ namespace NativeWindow
         /// @param title Window title in UTF8.
         /// @param style Window style.
         /// @return Create success.
-        virtual bool Create(int width, int height, const std::string& title, WindowStyle style);
+        bool Create(int width, int height, const std::string& title, WindowStyle style);
 
         /// Destroy window instance.
         void Destroy();
@@ -87,9 +87,11 @@ namespace NativeWindow
         /// Called when window is created.
         void SetCallbackOnWindowCreated(const std::function<void()>& callback);
 
-        /// Called when window received WM_CLOSE, if this callback is not settle,
-        /// default behaviour is to call Destroy(). If this callback settle by
-        /// user, user should call Destroy() to make window really closed.
+        /// Called when window is trying to close, return true to let
+        /// window close, return false to refuse window to close.
+        void SetCallbackOnWindowTryToClose(const std::function<bool()>& callback);
+
+        /// Called when window is closed.
         void SetCallbackOnWindowClosed(const std::function<void()>& callback);
 
         /// Called when window is about to be destroyed, at this moment, WM_DESTROY
@@ -151,6 +153,7 @@ namespace NativeWindow
         std::function<void()> _onWindowCreated = nullptr;
         std::function<void(int,int)> _onWindowMoved = nullptr;
         std::function<bool(uint32_t, void*, void*, int*)> _onWindowMessagePreProcess = nullptr;
+        std::function<bool()> _onWindowTryToClose = nullptr;
         std::function<void()> _onWindowClosed = nullptr;
         std::function<void()> _onWindowPreDestroyed = nullptr;
         std::function<void()> _onWindowPostDestroyed = nullptr;
