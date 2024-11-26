@@ -298,6 +298,11 @@ namespace NativeWindow
         _onWindowMessagePreProcess = callback;
     }
 
+    void Window::SetCallbackOnWindowMoved(const std::function<void(int, int)>& callback)
+    {
+        _onWindowMoved = callback;
+    }
+
     void Window::SetCallbackOnWindowResize(const std::function<void(int, int)>& callback)
     {
         _onWindowResize = callback;
@@ -542,6 +547,16 @@ namespace NativeWindow
                 if (LOWORD(lParam) == HTCLIENT)
                     ::SetCursor(_pWindowState->cursorVisible ? static_cast<HCURSOR>(_pWindowState->hCursor) : nullptr);
 
+                break;
+            }
+            case WM_MOVE:
+            {
+                if (_onWindowMoved != nullptr)
+                {
+                    int x = LOWORD(lParam); // left up x
+                    int y = HIWORD(lParam); // left up y
+                    _onWindowMoved(x, y);
+                }
                 break;
             }
             case WM_SIZE:

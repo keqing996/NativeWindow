@@ -84,6 +84,7 @@ namespace NativeWindow
         /// Get is cursor inside window now (frame not included).
         bool IsCursorInsideWindow() const;
 
+        /// Called when window is created.
         void SetCallbackOnWindowCreated(const std::function<void()>& callback);
 
         /// Called when window received WM_CLOSE, if this callback is not settle,
@@ -91,8 +92,13 @@ namespace NativeWindow
         /// user, user should call Destroy() to make window really closed.
         void SetCallbackOnWindowClosed(const std::function<void()>& callback);
 
+        /// Called when window is about to be destroyed, at this moment, WM_DESTROY
+        /// is not sent to window yet, and all resources (icon, or something) are still
+        /// held by window.
         void SetCallbackOnWindowPreDestroyed(const std::function<void()>& callback);
 
+        /// Called when window is already destroyed, at this moment, WM_DESTROY is
+        /// already received, all resources are released, window is closed.
         void SetCallbackOnWindowPostDestroyed(const std::function<void()>& callback);
 
         /// Called when windows messages received.
@@ -105,12 +111,26 @@ namespace NativeWindow
         /// Returned bool: Should block original message process, should be false in most cases.
         void SetCallbackOnWindowMessagePreProcess(const std::function<bool(uint32_t, void*, void*, int*)>& callback);
 
+        /// Called when window received WM_MOVE
+        ///
+        /// - int: left up corner x.
+        /// - int: left up corner y.
+        void SetCallbackOnWindowMoved(const std::function<void(int,int)>& callback);
+
+        /// Called when window received WM_SIZE
+        /// - int: new size width.
+        /// - int: new size height.
         void SetCallbackOnWindowResize(const std::function<void(int, int)>& callback);
 
+        /// Called when window get or lost focus,
+        /// true for enter focus and false for lose focus.
         void SetCallbackOnWindowFocusChanged(const std::function<void(bool)>& callback);
 
+        /// Called when cursor enters or leaves window, true for
+        /// enters window and false for leaves window.
         void SetCallbackOnWindowCursorEnteredOrLeaved(const std::function<void(bool)>& callback);
 
+        /// Called when cursor's visibility changes, true for shown and false for hided.
         void SetCallbackOnWindowCursorVisibleChanged(const std::function<void(bool)>& callback);
 
     private:
@@ -129,6 +149,7 @@ namespace NativeWindow
         std::unique_ptr<WindowState> _pWindowState = nullptr;
 
         std::function<void()> _onWindowCreated = nullptr;
+        std::function<void(int,int)> _onWindowMoved = nullptr;
         std::function<bool(uint32_t, void*, void*, int*)> _onWindowMessagePreProcess = nullptr;
         std::function<void()> _onWindowClosed = nullptr;
         std::function<void()> _onWindowPreDestroyed = nullptr;
