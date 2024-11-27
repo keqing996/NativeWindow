@@ -1,7 +1,7 @@
 #pragma once
 
 #include "NativeWindow/Window.h"
-#include "NativeWindow/WindowsInclude.h"
+#include "WindowsInclude.h"
 
 namespace NativeWindow
 {

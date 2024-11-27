@@ -1,5 +1,5 @@
 
-#include "NativeWindow/WindowsInclude.h"
+#include "WindowsInclude.h"
 #include "NativeWindow/Utility/String.h"
 #include "NativeWindow/Window.h"
 
@@ -355,7 +355,9 @@ namespace NativeWindow
 
         if (doClose)
         {
-            _onWindowClosed();
+            if (_onWindowClosed != nullptr)
+                _onWindowClosed();
+
             Destroy();
         }
     }

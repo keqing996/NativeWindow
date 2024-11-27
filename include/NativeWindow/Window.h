@@ -6,8 +6,8 @@
 #include <optional>
 #include <memory>
 
-#include "WindowStyle.h"
-#include "WindowState.h"
+#include "Detail/WindowStyle.h"
+#include "Detail/WindowState.h"
 #include "NativeWindow/Utility/NonCopyable.h"
 
 namespace NativeWindow

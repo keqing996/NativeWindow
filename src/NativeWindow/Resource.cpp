@@ -1,6 +1,6 @@
 #include <vector>
-#include "NativeWindow/WindowsInclude.h"
-#include "NativeWindow/Resource.h"
+#include "WindowsInclude.h"
+#include "NativeWindow/Detail/Resource.h"
 
 namespace NativeWindow
 {
