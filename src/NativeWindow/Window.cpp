@@ -1,5 +1,5 @@
 
-#include "WindowsInclude.h"
+#include "NativeWindow/Utility/WindowsInclude.h"
 #include "NativeWindow/Utility/String.h"
 #include "NativeWindow/Window.h"
 
@@ -26,6 +26,7 @@ namespace NativeWindow
 
     Window::~Window()
     {
+        DestroyAllServices();
         Destroy();
     }
 
@@ -342,6 +343,11 @@ namespace NativeWindow
             return _pWindowState->cursorLimitedInWindow;
 
         return false;
+    }
+
+    void Window::DestroyAllServices()
+    {
+
     }
 
     void Window::OnWindowClose()

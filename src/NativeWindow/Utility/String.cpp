@@ -1,7 +1,7 @@
 
 #include <vector>
 #include "NativeWindow/Utility/String.h"
-#include "../WindowsInclude.h"
+#include "NativeWindow/Utility/WindowsInclude.h"
 
 namespace Utility
 {

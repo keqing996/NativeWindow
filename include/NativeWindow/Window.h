@@ -9,6 +9,7 @@
 #include "Detail/WindowStyle.h"
 #include "Detail/WindowState.h"
 #include "NativeWindow/Utility/NonCopyable.h"
+#include "Service/IService.h"
 
 namespace NativeWindow
 {
@@ -136,6 +137,7 @@ namespace NativeWindow
         void SetCallbackOnWindowCursorVisibleChanged(const std::function<void(bool)>& callback);
 
     private:
+        void DestroyAllServices();
         void OnWindowClose();
         void OnWindowPreDestroy();
         void OnWindowPostDestroy();
@@ -149,6 +151,8 @@ namespace NativeWindow
 
     private:
         std::unique_ptr<WindowState> _pWindowState = nullptr;
+
+        std::vector<IService*> _services;
 
         std::function<void()> _onWindowCreated = nullptr;
         std::function<void(int,int)> _onWindowMoved = nullptr;
