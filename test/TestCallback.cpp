@@ -1,6 +1,5 @@
 
 #include <iostream>
-#include <NativeWindow/WindowsInclude.h>
 #include <NativeWindow/Window.h>
 
 int main()

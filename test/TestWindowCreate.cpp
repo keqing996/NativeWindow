@@ -1,5 +1,5 @@
 
-#include <NativeWindow/WindowsInclude.h>
+#include <Windows.h>
 #include <NativeWindow/Window.h>
 
 int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PWSTR lpCmdLine, int nCmdShow)
