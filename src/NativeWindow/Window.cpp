@@ -347,7 +347,10 @@ namespace NativeWindow
 
     void Window::DestroyAllServices()
     {
+        for (auto [type, p]: _services)
+            delete p;
 
+        _services.clear();
     }
 
     void Window::OnWindowClose()

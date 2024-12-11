@@ -5,8 +5,12 @@
 
 namespace NativeWindow
 {
-    class InputService
+    class InputService: ServiceWithSlot<ServiceType::Input>
     {
+    public:
+
+
+    private:
 
     };
 }
