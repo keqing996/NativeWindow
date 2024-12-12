@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <vector>
 #include "InputEvent.h"
 
 namespace NativeWindow
@@ -8,16 +9,29 @@ namespace NativeWindow
     class Input
     {
     public:
-        enum ButtonState
-        {
+        Input();
 
-            Press,
-            Hold,
-            Release,
-        };
+        void ProcessEventQueue();
+
+        bool IsKeyPressed(Key key) const;
+
+        bool IsKeyPressedThisFrame(Key key) const;
 
     private:
-        bool _keyboardAutoRepeat = true;
+        struct KeyboardData
+        {
+            bool pressed;
+            bool changed;
+        };
+
+        KeyboardData& GetKey(Key key);
+
+        const KeyboardData& GetKey(Key key) const;
+
+    private:
+        std::vector<InputEvent> _eventQueue;
+
+        std::vector<KeyboardData> _keyboard;
 
     };
 }

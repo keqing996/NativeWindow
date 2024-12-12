@@ -14,24 +14,24 @@ namespace NativeWindow
         KeyboardButton
     };
 
-    struct MouseMoveData
+    struct MouseMoveEventData
     {
         std::pair<int, int> position;
     };
 
-    struct MouseButtonData
+    struct MouseButtonEventData
     {
         MouseButton button;
         bool isPress;
     };
 
-    struct MouseWheelData
+    struct MouseWheelEventData
     {
         float delta;
         bool isUp;
     };
 
-    struct KeyboardButtonData
+    struct KeyboardEventData
     {
         Key button;
         bool isPress;
@@ -39,10 +39,10 @@ namespace NativeWindow
 
     union InputEventData
     {
-        MouseMoveData mouseMove;
-        MouseButtonData mouseButton;
-        MouseWheelData mouseWheel;
-        KeyboardButtonData keyboard;
+        MouseMoveEventData mouseMove;
+        MouseButtonEventData mouseButton;
+        MouseWheelEventData mouseWheel;
+        KeyboardEventData keyboard;
     };
 
     struct InputEvent

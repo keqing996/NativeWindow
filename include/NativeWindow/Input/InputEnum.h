@@ -13,7 +13,7 @@ namespace NativeWindow
 
     enum class Key: int
     {
-        Unknown = -1,
+        Unknown = 0,
         A,
         B,
         C,
