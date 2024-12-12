@@ -13,25 +13,23 @@ namespace NativeWindow
 
         void ProcessEventQueue();
 
-        bool IsKeyPressed(Key key) const;
-
-        bool IsKeyPressedThisFrame(Key key) const;
+        bool IsButtonPressed(ButtonType key) const;
+        bool IsButtonPressedThisFrame(ButtonType key) const;
 
     private:
-        struct KeyboardData
+        struct ButtonData
         {
             bool pressed;
             bool changed;
         };
 
-        KeyboardData& GetKey(Key key);
-
-        const KeyboardData& GetKey(Key key) const;
+        ButtonData& GetButton(ButtonType key);
+        const ButtonData& GetButton(ButtonType key) const;
 
     private:
         std::vector<InputEvent> _eventQueue;
 
-        std::vector<KeyboardData> _keyboard;
+        std::vector<ButtonData> _buttonData;
 
     };
 }

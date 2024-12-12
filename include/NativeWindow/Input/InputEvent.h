@@ -9,20 +9,13 @@ namespace NativeWindow
     enum class InputEventType
     {
         MouseMove,
-        MouseButton,
         MouseWheel,
-        KeyboardButton
+        Button,
     };
 
     struct MouseMoveEventData
     {
         std::pair<int, int> position;
-    };
-
-    struct MouseButtonEventData
-    {
-        MouseButton button;
-        bool isPress;
     };
 
     struct MouseWheelEventData
@@ -31,18 +24,17 @@ namespace NativeWindow
         bool isUp;
     };
 
-    struct KeyboardEventData
+    struct ButtonData
     {
-        Key button;
+        ButtonType button;
         bool isPress;
     };
 
     union InputEventData
     {
         MouseMoveEventData mouseMove;
-        MouseButtonEventData mouseButton;
         MouseWheelEventData mouseWheel;
-        KeyboardEventData keyboard;
+        ButtonData button;
     };
 
     struct InputEvent

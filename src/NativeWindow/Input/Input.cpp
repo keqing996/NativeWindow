@@ -6,32 +6,32 @@ namespace NativeWindow
 {
     Input::Input()
     {
-        _keyboard.resize(static_cast<int>(Key::Count));
+        _buttonData.resize(static_cast<int>(ButtonType::Count));
     }
 
     void Input::ProcessEventQueue()
     {
-        static std::unordered_map<Key, bool> lastFrameKeyboardPressedRecord;
+        static std::unordered_map<ButtonType, bool> lastFrameBtnPressedRecord;
 
-        lastFrameKeyboardPressedRecord.clear();
+        lastFrameBtnPressedRecord.clear();
 
         for (const auto& [eventType, eventData] : _eventQueue)
         {
-            if (eventType == InputEventType::KeyboardButton)
+            if (eventType == InputEventType::Button)
             {
-                auto& inputData = eventData.keyboard;
-                KeyboardData& data = GetKey(inputData.button);
+                auto& inputData = eventData.button;
+                ButtonData& data = GetButton(inputData.button);
 
                 bool oldValue;
-                if (lastFrameKeyboardPressedRecord.find(inputData.button)
-                    == lastFrameKeyboardPressedRecord.end())
+                if (lastFrameBtnPressedRecord.find(inputData.button)
+                    == lastFrameBtnPressedRecord.end())
                 {
-                    lastFrameKeyboardPressedRecord[inputData.button] = inputData.isPress;
+                    lastFrameBtnPressedRecord[inputData.button] = inputData.isPress;
                     oldValue = inputData.isPress;
                 }
                 else
                 {
-                    oldValue = lastFrameKeyboardPressedRecord[inputData.button];
+                    oldValue = lastFrameBtnPressedRecord[inputData.button];
                 }
 
                 data.pressed = inputData.isPress;
@@ -42,24 +42,24 @@ namespace NativeWindow
         _eventQueue.clear();
     }
 
-    bool Input::IsKeyPressed(Key key) const
+    bool Input::IsButtonPressed(ButtonType key) const
     {
-        return GetKey(key).pressed;
+        return GetButton(key).pressed;
     }
 
-    bool Input::IsKeyPressedThisFrame(Key key) const
+    bool Input::IsButtonPressedThisFrame(ButtonType key) const
     {
-        auto data = GetKey(key);
+        auto data = GetButton(key);
         return data.pressed && data.changed;
     }
 
-    Input::KeyboardData& Input::GetKey(Key key)
+    Input::ButtonData& Input::GetButton(ButtonType key)
     {
-        return _keyboard[static_cast<int>(key)];
+        return _buttonData[static_cast<int>(key)];
     }
 
-    const Input::KeyboardData& Input::GetKey(Key key) const
+    const Input::ButtonData& Input::GetButton(ButtonType key) const
     {
-        return _keyboard[static_cast<int>(key)];
+        return _buttonData[static_cast<int>(key)];
     }
 }
