@@ -2,6 +2,15 @@
 
 namespace NativeWindow
 {
+    enum class MouseButton: int
+    {
+        Left,
+        Middle,
+        Right,
+        XButton4,
+        XButton5
+    };
+
     enum class Key: int
     {
         Unknown = -1,
