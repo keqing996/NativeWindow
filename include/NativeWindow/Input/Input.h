@@ -11,6 +11,7 @@ namespace NativeWindow
     public:
         Input();
 
+        void ProcessWinMessage(uint32_t msg, void* wpara, void* lpara, int* result);
         void ProcessEventQueue();
 
         bool IsButtonPressed(ButtonType key) const;
@@ -25,6 +26,8 @@ namespace NativeWindow
 
         ButtonData& GetButton(ButtonType key);
         const ButtonData& GetButton(ButtonType key) const;
+
+        ButtonType WinVirtualKeyToButtonType(void* wpara, void* lpara);
 
     private:
         std::vector<InputEvent> _eventQueue;
