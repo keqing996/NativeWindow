@@ -40,9 +40,10 @@ namespace NativeWindow
         KeyboardNumPad0, KeyboardNumPad1, KeyboardNumPad2,
         KeyboardNumPad3, KeyboardNumPad4, KeyboardNumPad5,
         KeyboardNumPad6, KeyboardNumPad7, KeyboardNumPad8,
-        KeyboardNumPad9, KeyboardNumPadMinus, KeyboardNumPadAdd,
-        KeyboardNumPadMultiply, KeyboardNumPadDivide,
-        KeyboardNumPadDecimal, KeyboardNumPadLock,
+        KeyboardNumPad9, KeyboardNumPadMinus,
+        KeyboardNumPadAdd, KeyboardNumPadMultiply,
+        KeyboardNumPadDivide, KeyboardNumPadDecimal,
+        KeyboardNumPadLock, KeyboardNumPadEnter,
         /* Keyboard Control */
         KeyboardEscape,
         KeyboardTab,

@@ -89,7 +89,7 @@ namespace NativeWindow
         WPARAM wParam = reinterpret_cast<WPARAM>(wpara);
         LPARAM lParam = reinterpret_cast<LPARAM>(lpara);
         if ((wParam == VK_RETURN) && (HIWORD(lParam) & KF_EXTENDED))
-            return ButtonType::KeyboardEnter;
+            return ButtonType::KeyboardNumPadEnter;
 
         switch (wParam)
         {
@@ -191,8 +191,16 @@ namespace NativeWindow
             case VK_RWIN:       return ButtonType::KeyboardRightWindows;
             case VK_RCONTROL:   return ButtonType::KeyboardRightCtrl;
             case VK_RSHIFT:     return ButtonType::KeyboardRightShift;
-            case VK_RETURN:     return ButtonType::KeyboardEnter;
             case VK_BACK:       return ButtonType::KeyboardBackspace;
+            case VK_RETURN:
+            {
+                // Enter key and numpad enter key are same virtual key "VK_RETURN",
+                // so we should use "KF_EXTENDED" to distinct them.
+                if (HIWORD(lParam) & KF_EXTENDED)
+                    return ButtonType::KeyboardNumPadEnter;
+                else
+                    return ButtonType::KeyboardEnter;
+            }
             /* Keyboard Edit */
             case VK_INSERT:     return ButtonType::KeyboardInsert;
             case VK_DELETE:     return ButtonType::KeyboardDelete;
