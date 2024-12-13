@@ -9,7 +9,7 @@ namespace NativeWindow
         _buttonData.resize(static_cast<int>(ButtonType::Count));
     }
 
-    void Input::ProcessWinMessage(uint32_t msg, void* wpara, void* lpara, int* result)
+    void Input::ProcessWinMessage(uint32_t msg, void* wpara, void* lpara)
     {
         WPARAM wParam = reinterpret_cast<WPARAM>(wpara);
         LPARAM lParam = reinterpret_cast<LPARAM>(lpara);
@@ -20,12 +20,16 @@ namespace NativeWindow
             case WM_SYSKEYDOWN:
             case WM_SYSKEYUP:
             {
-                const bool is_key_down = (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN);
-                if (wParam < 256)
-                {
-                }
+                const bool pressed = (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN);
+                auto button = WinVirtualKeyToButtonType(wpara, lpara);
 
+                InputEvent inputEvent{};
+                inputEvent.eventType = InputEventType::Button;
+                inputEvent.data.button.button = button;
+                inputEvent.data.button.isPress = pressed;
 
+                _eventQueue.emplace_back(inputEvent);
+                
                 break;
             }
         }

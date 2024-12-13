@@ -11,7 +11,7 @@ namespace NativeWindow
     public:
         Input();
 
-        void ProcessWinMessage(uint32_t msg, void* wpara, void* lpara, int* result);
+        void ProcessWinMessage(uint32_t msg, void* wpara, void* lpara);
         void ProcessEventQueue();
 
         bool IsButtonPressed(ButtonType key) const;
