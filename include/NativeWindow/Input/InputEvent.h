@@ -21,7 +21,6 @@ namespace NativeWindow
     struct MouseWheelEventData
     {
         float delta;
-        bool isUp;
     };
 
     struct ButtonData

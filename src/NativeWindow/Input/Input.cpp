@@ -88,6 +88,17 @@ namespace NativeWindow
                 }
                 break;
             }
+            case WM_MOUSEWHEEL:
+            {
+                float delta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam)) / static_cast<float>(WHEEL_DELTA);
+
+                InputEvent inputEvent{};
+                inputEvent.eventType = InputEventType::MouseWheel;
+                inputEvent.data.mouseWheel.delta = delta;
+                _eventQueue.emplace_back(inputEvent);
+
+                break;
+            }
         }
     }
 
