@@ -9,7 +9,7 @@ namespace NativeWindow
     class Input
     {
     public:
-        Input();
+        explicit Input(void* hWnd);
 
         void ProcessWinMessage(uint32_t msg, void* wpara, void* lpara);
         void ProcessEventQueue();
@@ -30,6 +30,7 @@ namespace NativeWindow
         ButtonType WinVirtualKeyToButtonType(void* wpara, void* lpara);
 
     private:
+        void* _hWnd;
         std::vector<InputEvent> _eventQueue;
 
         std::vector<ButtonData> _buttonData;

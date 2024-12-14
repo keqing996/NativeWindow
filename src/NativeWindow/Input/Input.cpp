@@ -4,7 +4,8 @@
 
 namespace NativeWindow
 {
-    Input::Input()
+    Input::Input(void* hWnd)
+        : _hWnd(hWnd)
     {
         _buttonData.resize(static_cast<int>(ButtonType::Count));
     }
@@ -31,6 +32,27 @@ namespace NativeWindow
                 _eventQueue.emplace_back(inputEvent);
                 
                 break;
+            }
+            case WM_MOUSEMOVE:
+            case WM_NCMOUSEMOVE:
+            {
+                POINT currentPos = { static_cast<LONG>(LOWORD(lParam)), static_cast<LONG>(HIWORD(lParam)) };
+                if (msg == WM_NCMOUSEMOVE && ::ScreenToClient(static_cast<HWND>(_hWnd), &currentPos) == FALSE)
+                    break;
+
+                InputEvent inputEvent{};
+                inputEvent.eventType = InputEventType::MouseMove;
+                inputEvent.data.mouseMove.position = std::make_pair(currentPos.x, currentPos.y);
+                _eventQueue.emplace_back(inputEvent);
+                break;
+            }
+            case WM_MOUSELEAVE:
+            case WM_NCMOUSELEAVE:
+            {
+                InputEvent inputEvent{};
+                inputEvent.eventType = InputEventType::MouseMove;
+                inputEvent.data.mouseMove.position = std::make_pair(-1, -1);
+                _eventQueue.emplace_back(inputEvent);
             }
         }
     }
