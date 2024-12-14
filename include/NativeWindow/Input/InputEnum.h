@@ -8,8 +8,8 @@ namespace NativeWindow
         MouseLeft = 0,
         MouseMiddle,
         MouseRight,
-        MouseXButton4,
-        MouseXButton5,
+        MouseXButton1,
+        MouseXButton2,
         /* Keyboard A-Z */
         KeyboardA, KeyboardB, KeyboardC, KeyboardD,
         KeyboardE, KeyboardF, KeyboardG, KeyboardH,

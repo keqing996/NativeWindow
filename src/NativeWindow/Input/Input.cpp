@@ -53,6 +53,40 @@ namespace NativeWindow
                 inputEvent.eventType = InputEventType::MouseMove;
                 inputEvent.data.mouseMove.position = std::make_pair(-1, -1);
                 _eventQueue.emplace_back(inputEvent);
+                break;
+            }
+            case WM_LBUTTONDOWN:
+            case WM_RBUTTONDOWN:
+            case WM_MBUTTONDOWN:
+            case WM_XBUTTONDOWN:
+            case WM_LBUTTONUP:
+            case WM_RBUTTONUP:
+            case WM_MBUTTONUP:
+            case WM_XBUTTONUP:
+            {
+                bool pressed = (msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN
+                    || msg == WM_MBUTTONDOWN || msg == WM_XBUTTONDOWN);
+
+                ButtonType button = ButtonType::Unknown;
+                if (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP)
+                    button = ButtonType::MouseLeft;
+                else if (msg == WM_RBUTTONDOWN || msg == WM_RBUTTONUP)
+                    button = ButtonType::MouseRight;
+                else if (msg == WM_MBUTTONDOWN || msg == WM_MBUTTONUP)
+                    button = ButtonType::MouseMiddle;
+                else if (msg == WM_XBUTTONDOWN || msg == WM_XBUTTONUP)
+                    button = GET_XBUTTON_WPARAM(wParam) == XBUTTON1 ? ButtonType::MouseXButton1 : ButtonType::MouseXButton2;
+
+                if (button != ButtonType::Unknown)
+                {
+                    InputEvent inputEvent{};
+                    inputEvent.eventType = InputEventType::Button;
+                    inputEvent.data.button.button = button;
+                    inputEvent.data.button.isPress = pressed;
+
+                    _eventQueue.emplace_back(inputEvent);
+                }
+                break;
             }
         }
     }
