@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <functional>
+#include <unordered_set>
 #include <vector>
 #include "InputEvent.h"
 
@@ -20,6 +22,11 @@ namespace NativeWindow
         std::pair<int, int> GetMousePosition() const;
         float GetMouseWheel() const;
 
+        void SetCallbackOnMouseMove(const std::function<void(std::pair<int, int>, std::pair<int, int>)>& fun);
+        void SetCallbackOnMouseWheel(const std::function<void(float)>& fun);
+        void SetCallbackOnButtonPressed(const std::function<void(ButtonType)>& fun);
+        void SetCallbackOnButtonReleased(const std::function<void(ButtonType)>& fun);
+
     private:
         struct ButtonData
         {
@@ -38,9 +45,15 @@ namespace NativeWindow
         void* _hWnd;
         std::vector<InputEvent> _eventQueue;
 
+        std::pair<int, int> _mousePosLastFrame;
         std::pair<int, int> _mousePos;
         float _mouseWheel;
+        std::unordered_set<ButtonType> _thisFrameChangedButtons;
         std::vector<ButtonData> _buttonData;
 
+        std::function<void(std::pair<int, int>, std::pair<int, int>)> _onMouseMove = nullptr;
+        std::function<void(float)> _onMouseWheel = nullptr;
+        std::function<void(ButtonType)> _onButtonPressed = nullptr;
+        std::function<void(ButtonType)> _onButtonReleased = nullptr;
     };
 }

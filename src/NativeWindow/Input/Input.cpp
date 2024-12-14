@@ -14,13 +14,39 @@ namespace NativeWindow
 
     void Input::BeforeWinMsgLoop()
     {
-        // mouse wheel reset every frame.
+        // Record last frame mouse position.
+        _mousePosLastFrame = _mousePos;
+        // Mouse wheel reset every frame.
         _mouseWheel = 0;
+        // Clear button changed record.
+        _thisFrameChangedButtons.clear();
     }
 
     void Input::AfterWinMsgLoop()
     {
         ProcessEventQueue();
+
+        // Call back
+        if (_onMouseMove != nullptr && _mousePosLastFrame != _mousePos)
+            _onMouseMove(_mousePosLastFrame, _mousePos);
+
+        if (_onMouseWheel != nullptr && _mouseWheel != 0)
+            _onMouseWheel(_mouseWheel);
+
+        if (!_thisFrameChangedButtons.empty())
+        {
+            for (auto button : _thisFrameChangedButtons)
+            {
+                ButtonData& data = GetButton(button);
+                if (data.changed)
+                {
+                    if (data.pressed && _onButtonPressed != nullptr)
+                        _onButtonPressed(button);
+                    if (!data.pressed && _onButtonReleased != nullptr)
+                        _onButtonReleased(button);
+                }
+            }
+        }
     }
 
     void Input::ProcessWinMessage(uint32_t msg, void* wpara, void* lpara)
@@ -103,7 +129,7 @@ namespace NativeWindow
             }
             case WM_MOUSEWHEEL:
             {
-                float delta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam)) / static_cast<float>(WHEEL_DELTA);
+                const float delta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam)) / static_cast<float>(WHEEL_DELTA);
 
                 InputEvent inputEvent{};
                 inputEvent.eventType = InputEventType::MouseWheel;
@@ -141,6 +167,8 @@ namespace NativeWindow
 
                 data.pressed = inputData.isPress;
                 data.changed = oldValue != inputData.isPress;
+
+                _thisFrameChangedButtons.insert(inputData.button);
             }
             else if (eventType == InputEventType::MouseMove)
             {
@@ -174,6 +202,26 @@ namespace NativeWindow
     float Input::GetMouseWheel() const
     {
         return _mouseWheel;
+    }
+
+    void Input::SetCallbackOnMouseMove(const std::function<void(std::pair<int, int>, std::pair<int, int>)>& fun)
+    {
+        _onMouseMove = fun;
+    }
+
+    void Input::SetCallbackOnMouseWheel(const std::function<void(float)>& fun)
+    {
+        _onMouseWheel = fun;
+    }
+
+    void Input::SetCallbackOnButtonPressed(const std::function<void(ButtonType)>& fun)
+    {
+        _onButtonPressed = fun;
+    }
+
+    void Input::SetCallbackOnButtonReleased(const std::function<void(ButtonType)>& fun)
+    {
+        _onButtonReleased = fun;
     }
 
     Input::ButtonData& Input::GetButton(ButtonType key)
