@@ -8,6 +8,19 @@ namespace NativeWindow
         : _hWnd(hWnd)
     {
         _buttonData.resize(static_cast<int>(ButtonType::Count));
+        _mousePos = std::make_pair(-1, -1);
+        _mouseWheel = 0;
+    }
+
+    void Input::BeforeWinMsgLoop()
+    {
+        // mouse wheel reset every frame.
+        _mouseWheel = 0;
+    }
+
+    void Input::AfterWinMsgLoop()
+    {
+        ProcessEventQueue();
     }
 
     void Input::ProcessWinMessage(uint32_t msg, void* wpara, void* lpara)
@@ -129,6 +142,14 @@ namespace NativeWindow
                 data.pressed = inputData.isPress;
                 data.changed = oldValue != inputData.isPress;
             }
+            else if (eventType == InputEventType::MouseMove)
+            {
+                _mousePos = eventData.mouseMove.position;
+            }
+            else if (eventType == InputEventType::MouseWheel)
+            {
+                _mouseWheel += eventData.mouseWheel.delta;
+            }
         }
 
         _eventQueue.clear();
@@ -143,6 +164,16 @@ namespace NativeWindow
     {
         auto data = GetButton(key);
         return data.pressed && data.changed;
+    }
+
+    std::pair<int, int> Input::GetMousePosition() const
+    {
+        return _mousePos;
+    }
+
+    float Input::GetMouseWheel() const
+    {
+        return _mouseWheel;
     }
 
     Input::ButtonData& Input::GetButton(ButtonType key)

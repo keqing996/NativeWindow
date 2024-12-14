@@ -9,7 +9,7 @@
 #include "Detail/WindowStyle.h"
 #include "Detail/WindowState.h"
 #include "NativeWindow/Utility/NonCopyable.h"
-#include "Service/IService.h"
+#include "Input/Input.h"
 
 namespace NativeWindow
 {
@@ -136,11 +136,8 @@ namespace NativeWindow
         /// Called when cursor's visibility changes, true for shown and false for hided.
         void SetCallbackOnWindowCursorVisibleChanged(const std::function<void(bool)>& callback);
 
-        template<typename Service>
-        void AddService();
-
-        template<typename Service>
-        Service* GetService();
+        /// Get input module.
+        const Input& GetInput() const;
 
     private:
         void DestroyAllServices();
@@ -158,7 +155,7 @@ namespace NativeWindow
     private:
         std::unique_ptr<WindowState> _pWindowState = nullptr;
 
-        std::unordered_map<ServiceType, IService*> _services;
+        Input _input;
 
         std::function<void()> _onWindowCreated = nullptr;
         std::function<void(int,int)> _onWindowMoved = nullptr;
@@ -176,25 +173,4 @@ namespace NativeWindow
         static void RegisterWindowClass();
         static void UnRegisterWindowClass();
     };
-
-    template<typename Service>
-    void Window::AddService()
-    {
-        ServiceType type = Service::GetType();
-        if (_services.find(type) != _services.end())
-            return;
-
-        _services[type] = new Service();
-    }
-
-    template<typename Service>
-    Service* Window::GetService()
-    {
-        ServiceType type = Service::GetType();
-        auto itr = _services.find(type);
-        if (itr == _services.end())
-            return nullptr;
-
-        return reinterpret_cast<Service*>(*itr);
-    }
 }

@@ -329,6 +329,11 @@ namespace NativeWindow
         _onWindowCursorVisibleChanged = callback;
     }
 
+    const Input& Window::GetInput() const
+    {
+        return _input;
+    }
+
     bool Window::IsCursorVisible() const
     {
         if (_pWindowState == nullptr)
@@ -460,6 +465,8 @@ namespace NativeWindow
 
     void Window::EventLoop(bool* windowDestroyed)
     {
+        _input.BeforeWinMsgLoop();
+
         // Fetch new event
         MSG message;
         while (::PeekMessageW(&message, nullptr, 0, 0, PM_REMOVE))
@@ -469,6 +476,8 @@ namespace NativeWindow
         }
 
         *windowDestroyed = !IsWindowValid();
+
+        _input.AfterWinMsgLoop();
     }
 
     void Window::SetCursorLimitedInWindowInternal(bool doCapture)
