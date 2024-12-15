@@ -11,10 +11,10 @@ namespace NativeWindow
     class Input
     {
     public:
-        explicit Input(void* hWnd);
+        Input();
 
         void BeforeWinMsgLoop();
-        void ProcessWinMessage(uint32_t msg, void* wpara, void* lpara);
+        void ProcessWinMessage(void* hWnd, uint32_t msg, void* wPara, void* lPara);
         void AfterWinMsgLoop();
 
         bool IsButtonPressed(ButtonType key) const;
@@ -42,7 +42,6 @@ namespace NativeWindow
         ButtonType WinVirtualKeyToButtonType(void* wpara, void* lpara);
 
     private:
-        void* _hWnd;
         std::vector<InputEvent> _eventQueue;
 
         std::pair<int, int> _mousePosLastFrame;

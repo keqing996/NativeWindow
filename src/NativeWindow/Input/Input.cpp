@@ -4,8 +4,7 @@
 
 namespace NativeWindow
 {
-    Input::Input(void* hWnd)
-        : _hWnd(hWnd)
+    Input::Input()
     {
         _buttonData.resize(static_cast<int>(ButtonType::Count));
         _mousePos = std::make_pair(-1, -1);
@@ -49,10 +48,10 @@ namespace NativeWindow
         }
     }
 
-    void Input::ProcessWinMessage(uint32_t msg, void* wpara, void* lpara)
+    void Input::ProcessWinMessage(void* hWnd, uint32_t msg, void* wpara, void* lpara)
     {
-        WPARAM wParam = reinterpret_cast<WPARAM>(wpara);
-        LPARAM lParam = reinterpret_cast<LPARAM>(lpara);
+        const WPARAM wParam = reinterpret_cast<WPARAM>(wpara);
+        const LPARAM lParam = reinterpret_cast<LPARAM>(lpara);
         switch (msg)
         {
             case WM_KEYDOWN:
@@ -76,7 +75,7 @@ namespace NativeWindow
             case WM_NCMOUSEMOVE:
             {
                 POINT currentPos = { static_cast<LONG>(LOWORD(lParam)), static_cast<LONG>(HIWORD(lParam)) };
-                if (msg == WM_NCMOUSEMOVE && ::ScreenToClient(static_cast<HWND>(_hWnd), &currentPos) == FALSE)
+                if (msg == WM_NCMOUSEMOVE && ::ScreenToClient(static_cast<HWND>(hWnd), &currentPos) == FALSE)
                     break;
 
                 InputEvent inputEvent{};

@@ -26,7 +26,6 @@ namespace NativeWindow
 
     Window::~Window()
     {
-        DestroyAllServices();
         Destroy();
     }
 
@@ -334,6 +333,11 @@ namespace NativeWindow
         return _input;
     }
 
+    Input& Window::GetInput()
+    {
+        return _input;
+    }
+
     bool Window::IsCursorVisible() const
     {
         if (_pWindowState == nullptr)
@@ -348,14 +352,6 @@ namespace NativeWindow
             return _pWindowState->cursorLimitedInWindow;
 
         return false;
-    }
-
-    void Window::DestroyAllServices()
-    {
-        for (auto [type, p]: _services)
-            delete p;
-
-        _services.clear();
     }
 
     void Window::OnWindowClose()
@@ -545,6 +541,10 @@ namespace NativeWindow
         if ((message == WM_SYSCOMMAND) && (reinterpret_cast<WPARAM>(wpara) == SC_KEYMENU))
             return 0;
 
+        // Process input messages
+        _input.ProcessWinMessage(_pWindowState->hWindow, message, wpara, lpara);
+
+        // Process window messages
         WindowEventProcessInternal(message, wpara, lpara);
 
         if (message == WM_DESTROY)

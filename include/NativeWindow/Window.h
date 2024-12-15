@@ -139,8 +139,10 @@ namespace NativeWindow
         /// Get input module.
         const Input& GetInput() const;
 
+        /// Get input module.
+        Input& GetInput();
+
     private:
-        void DestroyAllServices();
         void OnWindowClose();
         void OnWindowPreDestroy();
         void OnWindowPostDestroy();

@@ -65,6 +65,12 @@ int main()
         window.EventLoop(&finish);
         if (finish)
             break;
+
+        if (window.GetInput().IsButtonPressedThisFrame(NativeWindow::ButtonType::KeyboardU))
+        {
+            bool currentCursorVisible = window.IsCursorVisible();
+            window.SetCursorVisible(!currentCursorVisible);
+        }
     }
 
     system("pause");
