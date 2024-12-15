@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 namespace NativeWindow
 {
     enum class ButtonType: int
@@ -92,5 +94,14 @@ namespace NativeWindow
         /* Finish */
         Unknown,
         Count
+    };
+
+    class ButtonTypeUtility
+    {
+    public:
+        ButtonTypeUtility() = delete;
+
+    public:
+        static const char* GetName(ButtonType type);
     };
 }

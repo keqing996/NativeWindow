@@ -66,7 +66,7 @@ int main()
         if (finish)
             break;
 
-        if (window.GetInput().IsButtonPressedThisFrame(NativeWindow::ButtonType::KeyboardU))
+        if (window.GetInput().IsButtonPressed(NativeWindow::ButtonType::KeyboardU))
         {
             bool currentCursorVisible = window.IsCursorVisible();
             window.SetCursorVisible(!currentCursorVisible);

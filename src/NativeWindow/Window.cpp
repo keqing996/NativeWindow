@@ -461,8 +461,6 @@ namespace NativeWindow
 
     void Window::EventLoop(bool* windowDestroyed)
     {
-        _input.BeforeWinMsgLoop();
-
         // Fetch new event
         MSG message;
         while (::PeekMessageW(&message, nullptr, 0, 0, PM_REMOVE))
@@ -473,7 +471,7 @@ namespace NativeWindow
 
         *windowDestroyed = !IsWindowValid();
 
-        _input.AfterWinMsgLoop();
+        _input.ProcessEventQueue();
     }
 
     void Window::SetCursorLimitedInWindowInternal(bool doCapture)

@@ -6,46 +6,8 @@ namespace NativeWindow
 {
     Input::Input()
     {
-        _buttonData.resize(static_cast<int>(ButtonType::Count));
-        _mousePos = std::make_pair(-1, -1);
+        _mousePos = std::make_pair(INT_MIN, INT_MIN);
         _mouseWheel = 0;
-    }
-
-    void Input::BeforeWinMsgLoop()
-    {
-        // Record last frame mouse position.
-        _mousePosLastFrame = _mousePos;
-        // Mouse wheel reset every frame.
-        _mouseWheel = 0;
-        // Clear button changed record.
-        _thisFrameChangedButtons.clear();
-    }
-
-    void Input::AfterWinMsgLoop()
-    {
-        ProcessEventQueue();
-
-        // Call back
-        if (_onMouseMove != nullptr && _mousePosLastFrame != _mousePos)
-            _onMouseMove(_mousePosLastFrame, _mousePos);
-
-        if (_onMouseWheel != nullptr && _mouseWheel != 0)
-            _onMouseWheel(_mouseWheel);
-
-        if (!_thisFrameChangedButtons.empty())
-        {
-            for (auto button : _thisFrameChangedButtons)
-            {
-                ButtonData& data = GetButton(button);
-                if (data.changed)
-                {
-                    if (data.pressed && _onButtonPressed != nullptr)
-                        _onButtonPressed(button);
-                    if (!data.pressed && _onButtonReleased != nullptr)
-                        _onButtonReleased(button);
-                }
-            }
-        }
     }
 
     void Input::ProcessWinMessage(void* hWnd, uint32_t msg, void* wpara, void* lpara)
@@ -89,7 +51,7 @@ namespace NativeWindow
             {
                 InputEvent inputEvent{};
                 inputEvent.eventType = InputEventType::MouseMove;
-                inputEvent.data.mouseMove.position = std::make_pair(-1, -1);
+                inputEvent.data.mouseMove.position = std::make_pair(INT_MIN, INT_MIN);
                 _eventQueue.emplace_back(inputEvent);
                 break;
             }
@@ -142,32 +104,39 @@ namespace NativeWindow
 
     void Input::ProcessEventQueue()
     {
-        static std::unordered_map<ButtonType, bool> lastFrameBtnPressedRecord;
-
-        lastFrameBtnPressedRecord.clear();
+        // Record last frame mouse position.
+        auto mousePosLastFrame = _mousePos;
+        // Mouse wheel reset every frame.
+        _mouseWheel = 0;
 
         for (const auto& [eventType, eventData]: _eventQueue)
         {
             if (eventType == InputEventType::Button)
             {
-                auto& inputData = eventData.button;
-                ButtonData& data = GetButton(inputData.button);
-
-                bool oldValue;
-                if (lastFrameBtnPressedRecord.find(inputData.button)
-                    == lastFrameBtnPressedRecord.end())
+                auto [buttonType, isPressed] = eventData.button;
+                if (isPressed)
                 {
-                    lastFrameBtnPressedRecord[inputData.button] = inputData.isPress;
-                    oldValue = inputData.isPress;
-                } else
-                {
-                    oldValue = lastFrameBtnPressedRecord[inputData.button];
+                    if (_pressedButton.find(buttonType) == _pressedButton.end())
+                    {
+                        _pressedButton.insert(buttonType);
+                        if (_onButtonPressed != nullptr)
+                            _onButtonPressed(buttonType);
+                    }
+                    else
+                    {
+                        if (_enableAutoRepeat && _onButtonPressed != nullptr)
+                            _onButtonPressed(buttonType);
+                    }
                 }
-
-                data.pressed = inputData.isPress;
-                data.changed = oldValue != inputData.isPress;
-
-                _thisFrameChangedButtons.insert(inputData.button);
+                else
+                {
+                    if (auto itr = _pressedButton.find(buttonType); itr != _pressedButton.end())
+                    {
+                        _pressedButton.erase(itr);
+                        if (_onButtonReleased != nullptr)
+                            _onButtonReleased(buttonType);
+                    }
+                }
             }
             else if (eventType == InputEventType::MouseMove)
             {
@@ -180,17 +149,17 @@ namespace NativeWindow
         }
 
         _eventQueue.clear();
+
+        if (_onMouseMove != nullptr && mousePosLastFrame != _mousePos)
+            _onMouseMove(mousePosLastFrame, _mousePos);
+
+        if (_onMouseWheel != nullptr && _mouseWheel != 0)
+            _onMouseWheel(_mouseWheel);
     }
 
     bool Input::IsButtonPressed(ButtonType key) const
     {
-        return GetButton(key).pressed;
-    }
-
-    bool Input::IsButtonPressedThisFrame(ButtonType key) const
-    {
-        auto data = GetButton(key);
-        return data.pressed && data.changed;
+        return _pressedButton.find(key) != _pressedButton.end();
     }
 
     std::pair<int, int> Input::GetMousePosition() const
@@ -201,6 +170,16 @@ namespace NativeWindow
     float Input::GetMouseWheel() const
     {
         return _mouseWheel;
+    }
+
+    bool Input::GetIsAutoRepeat() const
+    {
+        return _enableAutoRepeat;
+    }
+
+    void Input::SetIsAutoRepeat(bool autoRepeat)
+    {
+        _enableAutoRepeat = autoRepeat;
     }
 
     void Input::SetCallbackOnMouseMove(const std::function<void(std::pair<int, int>, std::pair<int, int>)>& fun)
@@ -221,16 +200,6 @@ namespace NativeWindow
     void Input::SetCallbackOnButtonReleased(const std::function<void(ButtonType)>& fun)
     {
         _onButtonReleased = fun;
-    }
-
-    Input::ButtonData& Input::GetButton(ButtonType key)
-    {
-        return _buttonData[static_cast<int>(key)];
-    }
-
-    const Input::ButtonData& Input::GetButton(ButtonType key) const
-    {
-        return _buttonData[static_cast<int>(key)];
     }
 
     ButtonType Input::WinVirtualKeyToButtonType(void* wpara, void* lpara)

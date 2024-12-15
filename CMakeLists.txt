@@ -19,6 +19,9 @@ if (ENABLE_NATIVE_WINDOW_TEST)
     add_executable          (test_msg_recv test/TestMessageReceived.cpp)
     target_link_libraries   (test_msg_recv PUBLIC native_window)
 
-    add_executable          (test_callback test/TestCallback.cpp)
-    target_link_libraries   (test_callback PUBLIC native_window)
+    add_executable          (test_window_callback test/TestWindowCallback.cpp)
+    target_link_libraries   (test_window_callback PUBLIC native_window)
+
+    add_executable          (test_input_callback test/TestInputCallback.cpp)
+    target_link_libraries   (test_input_callback PUBLIC native_window)
 endif ()
