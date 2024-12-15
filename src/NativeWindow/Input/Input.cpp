@@ -6,7 +6,7 @@ namespace NativeWindow
 {
     Input::Input()
     {
-        _mousePos = std::make_pair(INT_MIN, INT_MIN);
+        _mousePos = std::make_pair(-1, -1);
         _mouseWheel = 0;
     }
 
@@ -34,7 +34,7 @@ namespace NativeWindow
                 break;
             }
             case WM_MOUSEMOVE:
-            case WM_NCMOUSEMOVE:
+            // case WM_NCMOUSEMOVE: // For non-client area, y pos will be negative, so we do not deal this case for now.
             {
                 POINT currentPos = { static_cast<LONG>(LOWORD(lParam)), static_cast<LONG>(HIWORD(lParam)) };
                 if (msg == WM_NCMOUSEMOVE && ::ScreenToClient(static_cast<HWND>(hWnd), &currentPos) == FALSE)
@@ -47,11 +47,11 @@ namespace NativeWindow
                 break;
             }
             case WM_MOUSELEAVE:
-            case WM_NCMOUSELEAVE:
+            // case WM_NCMOUSELEAVE:
             {
                 InputEvent inputEvent{};
                 inputEvent.eventType = InputEventType::MouseMove;
-                inputEvent.data.mouseMove.position = std::make_pair(INT_MIN, INT_MIN);
+                inputEvent.data.mouseMove.position = std::make_pair(-1, -1);
                 _eventQueue.emplace_back(inputEvent);
                 break;
             }

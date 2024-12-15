@@ -143,6 +143,7 @@ namespace NativeWindow
         Input& GetInput();
 
     private:
+        void SetTrackMouseLeave(bool enable);
         void OnWindowClose();
         void OnWindowPreDestroy();
         void OnWindowPostDestroy();

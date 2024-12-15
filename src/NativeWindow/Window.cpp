@@ -94,11 +94,8 @@ namespace NativeWindow
         SetCursorLimitedInWindow(false);
         _pWindowState->cursorInsideWindow = CalculateMouseInsideWindow();
 
-        TRACKMOUSEEVENT tme;
-        tme.cbSize = sizeof(TRACKMOUSEEVENT);
-        tme.dwFlags = TME_LEAVE; // enable tracing WM_MOUSELEAVE
-        tme.hwndTrack = hWindow;
-        ::TrackMouseEvent(&tme);
+        // Set track mouse leave
+        SetTrackMouseLeave(true);
 
         // Set size again after window creation to avoid some bug.
         SetSize(width, height);
@@ -338,6 +335,18 @@ namespace NativeWindow
         return _input;
     }
 
+    void Window::SetTrackMouseLeave(bool enable)
+    {
+        if (_pWindowState == nullptr)
+            return;
+
+        TRACKMOUSEEVENT tme;
+        tme.cbSize = sizeof(TRACKMOUSEEVENT);
+        tme.dwFlags = enable ? TME_LEAVE : TME_CANCEL;
+        tme.hwndTrack = static_cast<HWND>(_pWindowState->hWindow);
+        ::TrackMouseEvent(&tme);
+    }
+
     bool Window::IsCursorVisible() const
     {
         if (_pWindowState == nullptr)
@@ -384,11 +393,7 @@ namespace NativeWindow
         ::ReleaseCapture();
 
         // Release cursor tracking
-        TRACKMOUSEEVENT tme;
-        tme.cbSize = sizeof(TRACKMOUSEEVENT);
-        tme.dwFlags = TME_CANCEL;
-        tme.hwndTrack = static_cast<HWND>(_pWindowState->hWindow);
-        ::TrackMouseEvent(&tme);
+        SetTrackMouseLeave(false);
 
         // Icon
         if (_pWindowState->hIcon != nullptr)
@@ -632,12 +637,17 @@ namespace NativeWindow
                 if (!_pWindowState->cursorInsideWindow)
                 {
                     _pWindowState->cursorInsideWindow = true;
+
+                    SetTrackMouseLeave(true);
+
                     if (_onWindowCursorEnteredOrLeaved != nullptr)
                         _onWindowCursorEnteredOrLeaved(true);
                 }
                 break;
             }
-            // WM_MOUSELEAVE will be received only if ::TrackMouseEvent enabled.
+            // WM_MOUSELEAVE will be received only if ::TrackMouseEvent set.
+            // Once WM_MOUSELEAVE received, ::TrackMouseEvent will be canceled.
+            // So ::TrackMouseEvent should be set again when mouse enter.
             case WM_MOUSELEAVE:
             {
                 // Mouse outside window
