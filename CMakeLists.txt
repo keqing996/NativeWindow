@@ -17,12 +17,14 @@ else ()
 endif ()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(TARGET_NAME "native_window_${COMPILER_TYPE}_d")
+    set(ARTIFACT_NAME "native_window_${COMPILER_TYPE}_d")
 elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(TARGET_NAME "native_window_${COMPILER_TYPE}")
+    set(ARTIFACT_NAME "native_window_${COMPILER_TYPE}")
 endif ()
 
-set(OUTPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/artifacts/")
+set(TARGET_NAME "native_window")
+
+set(OUTPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/artifacts/NativeWindow/lib/")
 
 add_library                 (${TARGET_NAME} STATIC ${NATIVE_WINDOW_SRC})
 target_include_directories  (${TARGET_NAME} PUBLIC ./include/)
@@ -31,6 +33,7 @@ set_target_properties       (${TARGET_NAME} PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR}
         RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
 )
+set_target_properties       (${TARGET_NAME} PROPERTIES OUTPUT_NAME "${ARTIFACT_NAME}")
 
 option (ENABLE_NATIVE_WINDOW_TEST OFF)
 
