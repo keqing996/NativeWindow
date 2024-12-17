@@ -21,19 +21,17 @@ def find_valid_directories_with_cmake(directory: str):
 def cmake_build_dir(directory: str, target: str):
     thread_count = os.cpu_count()
     command = f"cmake --build {directory} --target {target} -j {thread_count}"
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
     print(f"\n\n[Build]: {command}\n\n")
+    result = subprocess.run(command, capture_output=True, text=True)
 
-    stdout, stderr = process.communicate()
-
-    print(stdout)
+    print(result.stdout)
     print('\n')
-    if stderr:
-        print("[Error]:\n")
-        print(stderr)
+    if result.stderr:
+        print("\n[Error]:\n")
+        print(result.stderr)
 
-    return process.returncode
+    return result.returncode
 
 
 def build_all_configuration(target_dir: str, target: str):
