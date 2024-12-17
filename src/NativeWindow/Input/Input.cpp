@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <unordered_map>
 #include "NativeWindow/Utility/WindowsInclude.h"
 #include "NativeWindow/Input/Input.h"
