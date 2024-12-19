@@ -26,10 +26,6 @@ def cmake_build_dir(directory: str, target: str):
     result = subprocess.run(command, capture_output=True, text=True)
 
     print(result.stdout)
-    print('\n')
-    if result.stderr:
-        print("\n[Error]:\n")
-        print(result.stderr)
 
     return result.returncode
 

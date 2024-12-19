@@ -22,9 +22,9 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
     set(ARTIFACT_NAME "native_window_${COMPILER_TYPE}")
 endif ()
 
-set(TARGET_NAME "native_window")
+set (TARGET_NAME "native_window")
 
-set(OUTPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/artifacts/NativeWindow/lib/")
+set (OUTPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/artifacts/NativeWindow/lib/")
 
 add_library                 (${TARGET_NAME} STATIC ${NATIVE_WINDOW_SRC})
 target_include_directories  (${TARGET_NAME} PUBLIC ./include/)
