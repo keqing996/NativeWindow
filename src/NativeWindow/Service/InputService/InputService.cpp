@@ -1,17 +1,17 @@
 #include <cstdint>
 #include <unordered_map>
 #include "NativeWindow/Utility/WindowsInclude.h"
-#include "NativeWindow/Input/Input.h"
+#include "NativeWindow/Service/InputService/InputService.h"
 
 namespace NativeWindow
 {
-    Input::Input()
+    InputService::InputService()
     {
         _mousePos = std::make_pair(-1, -1);
         _mouseWheel = 0;
     }
 
-    void Input::ProcessWinMessage(void* hWnd, uint32_t msg, void* wpara, void* lpara)
+    void InputService::ProcessWinMessage(void* hWnd, uint32_t msg, void* wpara, void* lpara)
     {
         const WPARAM wParam = reinterpret_cast<WPARAM>(wpara);
         const LPARAM lParam = reinterpret_cast<LPARAM>(lpara);
@@ -103,7 +103,12 @@ namespace NativeWindow
         }
     }
 
-    void Input::ProcessEventQueue()
+    void InputService::Loop()
+    {
+        ProcessEventQueue();
+    }
+
+    void InputService::ProcessEventQueue()
     {
         // Record last frame mouse position.
         auto mousePosLastFrame = _mousePos;
@@ -158,52 +163,52 @@ namespace NativeWindow
             _onMouseWheel(_mouseWheel);
     }
 
-    bool Input::IsButtonPressed(ButtonType key) const
+    bool InputService::IsButtonPressed(ButtonType key) const
     {
         return _pressedButton.find(key) != _pressedButton.end();
     }
 
-    std::pair<int, int> Input::GetMousePosition() const
+    std::pair<int, int> InputService::GetMousePosition() const
     {
         return _mousePos;
     }
 
-    float Input::GetMouseWheel() const
+    float InputService::GetMouseWheel() const
     {
         return _mouseWheel;
     }
 
-    bool Input::GetIsAutoRepeat() const
+    bool InputService::GetIsAutoRepeat() const
     {
         return _enableAutoRepeat;
     }
 
-    void Input::SetIsAutoRepeat(bool autoRepeat)
+    void InputService::SetIsAutoRepeat(bool autoRepeat)
     {
         _enableAutoRepeat = autoRepeat;
     }
 
-    void Input::SetCallbackOnMouseMove(const std::function<void(std::pair<int, int>, std::pair<int, int>)>& fun)
+    void InputService::SetCallbackOnMouseMove(const std::function<void(std::pair<int, int>, std::pair<int, int>)>& fun)
     {
         _onMouseMove = fun;
     }
 
-    void Input::SetCallbackOnMouseWheel(const std::function<void(float)>& fun)
+    void InputService::SetCallbackOnMouseWheel(const std::function<void(float)>& fun)
     {
         _onMouseWheel = fun;
     }
 
-    void Input::SetCallbackOnButtonPressed(const std::function<void(ButtonType)>& fun)
+    void InputService::SetCallbackOnButtonPressed(const std::function<void(ButtonType)>& fun)
     {
         _onButtonPressed = fun;
     }
 
-    void Input::SetCallbackOnButtonReleased(const std::function<void(ButtonType)>& fun)
+    void InputService::SetCallbackOnButtonReleased(const std::function<void(ButtonType)>& fun)
     {
         _onButtonReleased = fun;
     }
 
-    ButtonType Input::WinVirtualKeyToButtonType(void* wpara, void* lpara)
+    ButtonType InputService::WinVirtualKeyToButtonType(void* wpara, void* lpara)
     {
         WPARAM wParam = reinterpret_cast<WPARAM>(wpara);
         LPARAM lParam = reinterpret_cast<LPARAM>(lpara);

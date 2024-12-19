@@ -22,6 +22,8 @@ namespace NativeWindow
     Window::Window()
     {
         NativeWindowUtility::FixProcessDpi();
+        _services.resize(ServiceIndex_Count);
+        std::fill(_services.begin(), _services.end(), nullptr);
     }
 
     Window::~Window()
@@ -325,16 +327,6 @@ namespace NativeWindow
         _onWindowCursorVisibleChanged = callback;
     }
 
-    const Input& Window::GetInput() const
-    {
-        return _input;
-    }
-
-    Input& Window::GetInput()
-    {
-        return _input;
-    }
-
     void Window::SetTrackMouseLeave(bool enable)
     {
         if (_pWindowState == nullptr)
@@ -345,6 +337,14 @@ namespace NativeWindow
         tme.dwFlags = enable ? TME_LEAVE : TME_CANCEL;
         tme.hwndTrack = static_cast<HWND>(_pWindowState->hWindow);
         ::TrackMouseEvent(&tme);
+    }
+
+    void Window::DestroyAllService()
+    {
+        for (auto p: _services)
+            delete p;
+
+        _services.clear();
     }
 
     bool Window::IsCursorVisible() const
@@ -474,9 +474,18 @@ namespace NativeWindow
             ::DispatchMessageW(&message);
         }
 
-        *windowDestroyed = !IsWindowValid();
+        bool windowValid = IsWindowValid();
+        *windowDestroyed = !windowValid;
 
-        _input.ProcessEventQueue();
+        if (windowValid)
+        {
+            // Service loop
+            for (auto pService: _services)
+            {
+                if (pService != nullptr)
+                    pService->Loop();
+            }
+        }
     }
 
     void Window::SetCursorLimitedInWindowInternal(bool doCapture)
@@ -544,8 +553,12 @@ namespace NativeWindow
         if ((message == WM_SYSCOMMAND) && (reinterpret_cast<WPARAM>(wpara) == SC_KEYMENU))
             return 0;
 
-        // Process input messages
-        _input.ProcessWinMessage(_pWindowState->hWindow, message, wpara, lpara);
+        // Process service messages
+        for (auto pService: _services)
+        {
+            if (pService != nullptr)
+                pService->ProcessWinMessage(_pWindowState->hWindow, message, wpara, lpara);
+        }
 
         // Process window messages
         WindowEventProcessInternal(message, wpara, lpara);

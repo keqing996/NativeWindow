@@ -4,18 +4,21 @@
 #include <functional>
 #include <unordered_set>
 #include <vector>
+#include "../IService.h"
 #include "InputEvent.h"
 
 namespace NativeWindow
 {
-    class Input
+    class InputService: public ServiceIndexWithIndex<ServiceIndex_Input>
     {
     public:
-        Input();
+        InputService();
 
-        void ProcessWinMessage(void* hWnd, uint32_t msg, void* wPara, void* lPara);
-        void ProcessEventQueue();
+    public:
+        void ProcessWinMessage(void* hWnd, uint32_t msg, void* wPara, void* lPara) override;
+        void Loop() override;
 
+    public:
         bool IsButtonPressed(ButtonType key) const;
         std::pair<int, int> GetMousePosition() const;
         float GetMouseWheel() const;
@@ -29,6 +32,7 @@ namespace NativeWindow
         void SetCallbackOnButtonReleased(const std::function<void(ButtonType)>& fun);
 
     private:
+        void ProcessEventQueue();
         ButtonType WinVirtualKeyToButtonType(void* wpara, void* lpara);
 
     private:

@@ -1,32 +1,39 @@
 #include <iostream>
 #include <NativeWindow/Window.h>
+#include <NativeWindow/Service/InputService/InputService.h>
+
+using namespace NativeWindow;
 
 int main()
 {
-    NativeWindow::Window window;
+    Window window;
 
-    window.GetInput().SetCallbackOnMouseMove([](std::pair<int, int> source, std::pair<int, int> target) -> void
+    window.AddService<InputService>();
+
+    auto inputService = window.GetService<InputService>();
+
+    inputService->SetCallbackOnMouseMove([](std::pair<int, int> source, std::pair<int, int> target) -> void
     {
         std::cout << "[MouseMove]   (" << source.first << ", " << source.second << ") -> ("
             << target.first << ", " << target.second << ")" << std::endl;
     });
 
-    window.GetInput().SetCallbackOnMouseWheel([](float delta) -> void
+    inputService->SetCallbackOnMouseWheel([](float delta) -> void
     {
         std::cout << "[MouseWheel]   (" << delta << ")" << std::endl;
     });
 
-    window.GetInput().SetCallbackOnButtonPressed([](NativeWindow::ButtonType btn) -> void
+    inputService->SetCallbackOnButtonPressed([](ButtonType btn) -> void
     {
-        std::cout << "[BtnPressed]  " << NativeWindow::ButtonTypeUtility::GetName(btn) << std::endl;
+        std::cout << "[BtnPressed]  " << ButtonTypeUtility::GetName(btn) << std::endl;
     });
 
-    window.GetInput().SetCallbackOnButtonReleased([](NativeWindow::ButtonType btn) -> void
+    inputService->SetCallbackOnButtonReleased([](ButtonType btn) -> void
     {
-        std::cout << "[BtnRelease]  " << NativeWindow::ButtonTypeUtility::GetName(btn) << std::endl;
+        std::cout << "[BtnRelease]  " << ButtonTypeUtility::GetName(btn) << std::endl;
     });
 
-    window.Create(800, 600, "Test", NativeWindow::WindowStyle::DefaultStyle());
+    window.Create(800, 600, "Test", WindowStyle::DefaultStyle());
 
     while (true)
     {
@@ -35,7 +42,7 @@ int main()
         if (finish)
             break;
 
-        if (window.GetInput().IsButtonPressed(NativeWindow::ButtonType::KeyboardU))
+        if (inputService->IsButtonPressed(ButtonType::KeyboardU))
         {
             bool currentCursorVisible = window.IsCursorVisible();
             window.SetCursorVisible(!currentCursorVisible);

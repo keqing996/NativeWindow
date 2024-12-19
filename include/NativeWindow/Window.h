@@ -9,7 +9,7 @@
 #include "Detail/WindowStyle.h"
 #include "Detail/WindowState.h"
 #include "NativeWindow/Utility/NonCopyable.h"
-#include "Input/Input.h"
+#include "Service/IService.h"
 
 namespace NativeWindow
 {
@@ -136,14 +136,15 @@ namespace NativeWindow
         /// Called when cursor's visibility changes, true for shown and false for hided.
         void SetCallbackOnWindowCursorVisibleChanged(const std::function<void(bool)>& callback);
 
-        /// Get input module.
-        const Input& GetInput() const;
+        template<typename T>
+        T* AddService();
 
-        /// Get input module.
-        Input& GetInput();
+        template<typename T>
+        T* GetService();
 
     private:
         void SetTrackMouseLeave(bool enable);
+        void DestroyAllService();
         void OnWindowClose();
         void OnWindowPreDestroy();
         void OnWindowPostDestroy();
@@ -158,7 +159,7 @@ namespace NativeWindow
     private:
         std::unique_ptr<WindowState> _pWindowState = nullptr;
 
-        Input _input;
+        std::vector<IService*> _services;
 
         std::function<void()> _onWindowCreated = nullptr;
         std::function<void(int,int)> _onWindowMoved = nullptr;
@@ -176,4 +177,20 @@ namespace NativeWindow
         static void RegisterWindowClass();
         static void UnRegisterWindowClass();
     };
+
+    template<typename T>
+    T* Window::AddService()
+    {
+        int index = T::ServiceIndex();
+        if (_services[index] == nullptr)
+            _services[index] = new T();
+
+        return reinterpret_cast<T*>(_services[index]);
+    }
+
+    template<typename T>
+    T* Window::GetService()
+    {
+        return reinterpret_cast<T*>(_services[T::ServiceIndex()]);
+    }
 }

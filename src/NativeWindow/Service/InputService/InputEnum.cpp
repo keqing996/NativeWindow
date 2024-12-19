@@ -1,4 +1,4 @@
-#include "NativeWindow/Input/InputEnum.h"
+#include "NativeWindow/Service/InputService/InputEnum.h"
 
 namespace NativeWindow
 {
