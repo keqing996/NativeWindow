@@ -33,6 +33,9 @@ file (GLOB_RECURSE IMGUI_SRC
         ./thirdparty/imgui/backends/imgui_impl_vulkan.cpp
 )
 
+# ======== Required packages ========
+find_package(Vulkan REQUIRED)
+
 # ======== Library target ========
 set                         (TARGET_NAME "native_window")
 add_library                 (${TARGET_NAME} STATIC  ${NATIVE_WINDOW_SRC} ${IMGUI_SRC})
@@ -43,6 +46,8 @@ set_target_properties       (${TARGET_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY 
 set_target_properties       (${TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/artifacts/NativeWindow/lib/")
 set_target_properties       (${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/artifacts/NativeWindow/lib/")
 set_target_properties       (${TARGET_NAME} PROPERTIES OUTPUT_NAME "${ARTIFACT_NAME}")
+target_link_libraries       (${TARGET_NAME} PUBLIC Vulkan::Vulkan)
+target_compile_definitions  (${TARGET_NAME} PUBLIC VK_USE_PLATFORM_WIN32_KHR)
 
 # ======== Tests ========
 option (ENABLE_NATIVE_WINDOW_TEST OFF)

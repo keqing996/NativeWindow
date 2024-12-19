@@ -4,7 +4,7 @@
 #include <functional>
 #include <unordered_set>
 #include <vector>
-#include "../IService.h"
+#include "../Service.h"
 #include "InputEvent.h"
 
 namespace NativeWindow

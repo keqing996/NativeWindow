@@ -22,8 +22,6 @@ namespace NativeWindow
     Window::Window()
     {
         NativeWindowUtility::FixProcessDpi();
-        _services.resize(ServiceIndex_Count);
-        std::fill(_services.begin(), _services.end(), nullptr);
     }
 
     Window::~Window()
@@ -83,8 +81,7 @@ namespace NativeWindow
         gGlobalWindowsCount++;
 
         // Create window state
-        _pWindowState = std::make_unique<WindowState>();
-        _pWindowState->hWindow = hWindow;
+        _pWindowState = std::make_unique<WindowData>(hWindow);
         _pWindowState->lastWidth = width;
         _pWindowState->lastHeight = height;
 
@@ -115,7 +112,7 @@ namespace NativeWindow
             return;
 
         // Destroy window
-        ::DestroyWindow(static_cast<HWND>(_pWindowState->hWindow));
+        ::DestroyWindow(_pWindowState->GetWindowHandle<HWND>());
     }
 
     bool Window::IsWindowValid() const
@@ -149,7 +146,7 @@ namespace NativeWindow
         if (_pWindowState == nullptr)
             return;
 
-        const HWND hWnd = static_cast<HWND>(_pWindowState->hWindow);
+        const HWND hWnd = _pWindowState->GetWindowHandle<HWND>();
         const DWORD dwStyle = static_cast<DWORD>(::GetWindowLongPtrW(hWnd, GWL_STYLE));
         auto [adjustWidth, adjustHeight] = NativeWindowUtility::CalculateAdjustWindowSize(width, height, dwStyle);
         ::SetWindowPos(hWnd, nullptr, 0, 0, adjustWidth, adjustHeight, SWP_NOMOVE | SWP_NOZORDER);
@@ -160,7 +157,7 @@ namespace NativeWindow
         if (_pWindowState == nullptr)
             return nullptr;
 
-        return _pWindowState->hWindow;
+        return _pWindowState->GetWindowHandle();
     }
 
     void Window::SetIcon(unsigned int width, unsigned int height, const std::byte* pixels)
@@ -195,13 +192,13 @@ namespace NativeWindow
         if (_pWindowState->hIcon != nullptr)
         {
             ::SendMessageW(
-                    static_cast<HWND>(_pWindowState->hWindow),
+                    _pWindowState->GetWindowHandle<HWND>(),
                     WM_SETICON,
                     ICON_BIG,
                     reinterpret_cast<LPARAM>(_pWindowState->hIcon));
 
             ::SendMessageW(
-                    static_cast<HWND>(_pWindowState->hWindow),
+                    _pWindowState->GetWindowHandle<HWND>(),
                     WM_SETICON,
                     ICON_SMALL,
                     reinterpret_cast<LPARAM>(_pWindowState->hIcon));
@@ -222,13 +219,13 @@ namespace NativeWindow
         if (_pWindowState->hIcon != nullptr)
         {
             ::SendMessageW(
-                    static_cast<HWND>(_pWindowState->hWindow),
+                    _pWindowState->GetWindowHandle<HWND>(),
                     WM_SETICON,
                     ICON_BIG,
                     reinterpret_cast<LPARAM>(_pWindowState->hIcon));
 
             ::SendMessageW(
-                    static_cast<HWND>(_pWindowState->hWindow),
+                    _pWindowState->GetWindowHandle<HWND>(),
                     WM_SETICON,
                     ICON_SMALL,
                     reinterpret_cast<LPARAM>(_pWindowState->hIcon));
@@ -240,7 +237,7 @@ namespace NativeWindow
         if (_pWindowState == nullptr)
             return;
 
-        ::ShowWindow(static_cast<HWND>(_pWindowState->hWindow), show ? SW_SHOW : SW_HIDE);
+        ::ShowWindow(_pWindowState->GetWindowHandle<HWND>(), show ? SW_SHOW : SW_HIDE);
     }
 
     void Window::SetCursorVisible(bool show)
@@ -335,16 +332,8 @@ namespace NativeWindow
         TRACKMOUSEEVENT tme;
         tme.cbSize = sizeof(TRACKMOUSEEVENT);
         tme.dwFlags = enable ? TME_LEAVE : TME_CANCEL;
-        tme.hwndTrack = static_cast<HWND>(_pWindowState->hWindow);
+        tme.hwndTrack = _pWindowState->GetWindowHandle<HWND>();
         ::TrackMouseEvent(&tme);
-    }
-
-    void Window::DestroyAllService()
-    {
-        for (auto p: _services)
-            delete p;
-
-        _services.clear();
     }
 
     bool Window::IsCursorVisible() const
@@ -421,7 +410,7 @@ namespace NativeWindow
 
         const auto titleInWideStr = Utility::StringToWideString(title);
         const wchar_t* titleWide = titleInWideStr.c_str();
-        ::SetWindowTextW(static_cast<HWND>(_pWindowState->hWindow), titleWide);
+        ::SetWindowTextW(_pWindowState->GetWindowHandle<HWND>(), titleWide);
     }
 
     std::pair<int, int> Window::GetSize()
@@ -430,7 +419,7 @@ namespace NativeWindow
             return { 0, 0 };
 
         RECT rect;
-        ::GetClientRect(static_cast<HWND>(_pWindowState->hWindow), &rect);
+        ::GetClientRect(_pWindowState->GetWindowHandle<HWND>(), &rect);
         return { static_cast<int>(rect.right - rect.left), static_cast<int>(rect.bottom - rect.top) };
     }
 
@@ -440,7 +429,7 @@ namespace NativeWindow
             return { 0, 0 };
 
         RECT rect;
-        ::GetWindowRect(static_cast<HWND>(_pWindowState->hWindow), &rect);
+        ::GetWindowRect(_pWindowState->GetWindowHandle<HWND>(), &rect);
 
         return { static_cast<int>(rect.left), static_cast<int>(rect.top) };
     }
@@ -451,7 +440,7 @@ namespace NativeWindow
             return;
 
         ::SetWindowPos(
-                static_cast<HWND>(_pWindowState->hWindow),
+                _pWindowState->GetWindowHandle<HWND>(),
                 nullptr,
                 x,
                 y,
@@ -477,10 +466,10 @@ namespace NativeWindow
         bool windowValid = IsWindowValid();
         *windowDestroyed = !windowValid;
 
-        if (windowValid)
+        if (windowValid && _pWindowState != nullptr)
         {
             // Service loop
-            for (auto pService: _services)
+            for (auto pService: _pWindowState->GetServices())
             {
                 if (pService != nullptr)
                     pService->Loop();
@@ -495,7 +484,7 @@ namespace NativeWindow
             if (_pWindowState == nullptr)
                 return;
 
-            HWND hWindow = static_cast<HWND>(_pWindowState->hWindow);
+            HWND hWindow = _pWindowState->GetWindowHandle<HWND>();
 
             RECT rect;
             ::GetClientRect(hWindow, &rect);
@@ -517,7 +506,7 @@ namespace NativeWindow
         if (!::GetCursorPos(&cursorPos))
             return false;
 
-        const HWND hWnd = static_cast<HWND>(_pWindowState->hWindow);
+        const HWND hWnd = _pWindowState->GetWindowHandle<HWND>();
         POINT clientPoint = cursorPos;
         ::ScreenToClient(hWnd, &clientPoint);
 
@@ -554,10 +543,10 @@ namespace NativeWindow
             return 0;
 
         // Process service messages
-        for (auto pService: _services)
+        for (auto pService: _pWindowState->GetServices())
         {
             if (pService != nullptr)
-                pService->ProcessWinMessage(_pWindowState->hWindow, message, wpara, lpara);
+                pService->ProcessWinMessage(_pWindowState->GetWindowHandle(), message, wpara, lpara);
         }
 
         // Process window messages
@@ -566,7 +555,7 @@ namespace NativeWindow
         if (message == WM_DESTROY)
             OnWindowPreDestroy();
 
-        ret = ::DefWindowProcW(static_cast<HWND>(_pWindowState->hWindow)
+        ret = ::DefWindowProcW(_pWindowState->GetWindowHandle<HWND>()
             , message
             , reinterpret_cast<WPARAM>(wpara)
             , reinterpret_cast<LPARAM>(lpara));
@@ -633,7 +622,7 @@ namespace NativeWindow
             }
             case WM_MOUSEMOVE:
             {
-                const HWND hWnd = static_cast<HWND>(_pWindowState->hWindow);
+                const HWND hWnd = _pWindowState->GetWindowHandle<HWND>();
 
                 // Capture the mouse in case the user wants to drag it outside
                 if ((wParam & (MK_LBUTTON | MK_MBUTTON | MK_RBUTTON | MK_XBUTTON1 | MK_XBUTTON2)) == 0)

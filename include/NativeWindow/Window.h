@@ -7,9 +7,9 @@
 #include <memory>
 
 #include "Detail/WindowStyle.h"
-#include "Detail/WindowState.h"
+#include "Detail/WindowData.h"
 #include "NativeWindow/Utility/NonCopyable.h"
-#include "Service/IService.h"
+#include "Service/Service.h"
 
 namespace NativeWindow
 {
@@ -144,7 +144,6 @@ namespace NativeWindow
 
     private:
         void SetTrackMouseLeave(bool enable);
-        void DestroyAllService();
         void OnWindowClose();
         void OnWindowPreDestroy();
         void OnWindowPostDestroy();
@@ -157,9 +156,7 @@ namespace NativeWindow
         friend NativeWindowUtility;
 
     private:
-        std::unique_ptr<WindowState> _pWindowState = nullptr;
-
-        std::vector<IService*> _services;
+        std::unique_ptr<WindowData> _pWindowState = nullptr;
 
         std::function<void()> _onWindowCreated = nullptr;
         std::function<void(int,int)> _onWindowMoved = nullptr;
@@ -181,16 +178,18 @@ namespace NativeWindow
     template<typename T>
     T* Window::AddService()
     {
-        int index = T::ServiceIndex();
-        if (_services[index] == nullptr)
-            _services[index] = new T();
+        if (_pWindowState == nullptr)
+            return nullptr;
 
-        return reinterpret_cast<T*>(_services[index]);
+        return _pWindowState->AddService<T>();
     }
 
     template<typename T>
     T* Window::GetService()
     {
-        return reinterpret_cast<T*>(_services[T::ServiceIndex()]);
+        if (_pWindowState == nullptr)
+            return nullptr;
+
+        return _pWindowState->GetService<T>();
     }
 }
