@@ -14,6 +14,15 @@ namespace NativeWindow
     {
     }
 
+    const std::vector<ServiceType>* Service::GetServiceDependent(ServiceType type)
+    {
+        auto itr = gServiceDependentMap.find(type);
+        if (itr != gServiceDependentMap.end())
+            return &itr->second;
+
+        return nullptr;
+    }
+
     Service* Service::CreateService(void* hWnd, ServiceType type)
     {
         switch (type)

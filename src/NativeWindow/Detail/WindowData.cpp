@@ -9,13 +9,12 @@ namespace NativeWindow
 
     WindowData::~WindowData()
     {
-        for (auto p: _services)
-        {
-            if (p != nullptr)
-                delete p;
-        }
+        auto itr = _servicesInCreationOrder.rbegin();
+        for (; itr != _servicesInCreationOrder.rend(); ++itr)
+            delete *itr;
 
-        _services.clear();
+        _servicesInCreationOrder.clear();
+        _serviceMap.clear();
     }
 
     void* WindowData::GetWindowHandle() const
@@ -26,5 +25,25 @@ namespace NativeWindow
     const std::vector<Service*>& WindowData::GetServices()
     {
         return _servicesInCreationOrder;
+    }
+
+    Service* WindowData::AddService(ServiceType type)
+    {
+        auto itr = _serviceMap.find(type);
+        if (itr != _serviceMap.end())
+            return itr->second;
+
+        auto pDependentService = Service::GetServiceDependent(type);
+        if (pDependentService != nullptr)
+        {
+            for (auto dependentServiceType: *pDependentService)
+                AddService(dependentServiceType);
+        }
+
+        Service* service = Service::CreateService(_hWindow, type);
+        _serviceMap[type] = service;
+        _servicesInCreationOrder.push_back(service);
+
+        return service;
     }
 }

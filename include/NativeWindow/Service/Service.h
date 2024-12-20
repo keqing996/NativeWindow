@@ -20,11 +20,6 @@ namespace NativeWindow
         {
             return Type;
         }
-
-        enum ServiceType ServiceType() const
-        {
-            return Type;
-        }
     };
 
     class Service
@@ -37,6 +32,7 @@ namespace NativeWindow
         virtual void Loop() = 0;
 
     public:
+        static const std::vector<ServiceType>* GetServiceDependent(ServiceType);
         static Service* CreateService(void* hWnd, ServiceType type);
 
     protected:

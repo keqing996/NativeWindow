@@ -27,6 +27,9 @@ namespace NativeWindow
 
         const std::vector<Service*>& GetServices();
 
+    private:
+        Service* AddService(ServiceType type);
+
     public:
         void* hIcon = nullptr;
         void* hCursor = nullptr;
@@ -53,19 +56,17 @@ namespace NativeWindow
     template<typename T>
     T* WindowData::AddService()
     {
-        ServiceType type = T::ServiceType();
-        auto itr = _serviceMap.find(type);
-        if (itr != _serviceMap.end())
-            return itr->second;
-
-        Service* service = Service::CreateService(_hWindow, type);
-        _serviceMap[type] = service;
-        return service;
+        Service* result = AddService(T::ServiceType());
+        return reinterpret_cast<T*>(result);
     }
 
     template<typename T>
     T* WindowData::GetService()
     {
-        return reinterpret_cast<T*>(_services[T::ServiceIndex()]);
+        auto itr = _serviceMap.find(T::ServiceType());
+        if (itr == _serviceMap.end())
+            return nullptr;
+
+        return reinterpret_cast<T*>(*itr);
     }
 }
