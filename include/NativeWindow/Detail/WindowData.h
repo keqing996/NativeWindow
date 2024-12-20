@@ -20,15 +20,17 @@ namespace NativeWindow
         T GetWindowHandle() const;
 
         template<typename T>
-        T* AddService();
+        bool AddService();
 
         template<typename T>
         T* GetService();
 
         const std::vector<Service*>& GetServices();
 
+        void ClearService();
+
     private:
-        Service* AddService(ServiceType type);
+        bool AddService(ServiceType type);
 
     public:
         void* hIcon = nullptr;

@@ -10,7 +10,7 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PWSTR lpCmdLine, int n
     while (true)
     {
         bool finish;
-        window.EventLoop(&finish);
+        window.Loop(&finish);
         if (finish)
             break;
     }

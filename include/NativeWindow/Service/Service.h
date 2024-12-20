@@ -29,7 +29,9 @@ namespace NativeWindow
 
     public:
         virtual void ProcessWinMessage(void* hWnd, uint32_t msg, void* wPara, void* lPara) = 0;
-        virtual void Loop() = 0;
+        virtual void BeforeTick();
+        virtual void AfterTick();
+        virtual void FinishLoop();
 
     public:
         static const std::vector<ServiceType>* GetServiceDependent(ServiceType);

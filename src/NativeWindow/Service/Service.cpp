@@ -9,8 +9,23 @@ namespace NativeWindow
         { ServiceType::ImGuiOpenGL, { ServiceType::OpenGL } },
     };
 
+    static std::unordered_map<ServiceType, std::vector<ServiceType>> gConflictMap = {
+    };
+
     Service::Service(void* hWnd)
         : _hWnd(hWnd)
+    {
+    }
+
+    void Service::BeforeTick()
+    {
+    }
+
+    void Service::AfterTick()
+    {
+    }
+
+    void Service::FinishLoop()
     {
     }
 

@@ -52,7 +52,7 @@ int main()
     while (true)
     {
         bool finish;
-        window.EventLoop(&finish);
+        window.Loop(&finish);
         if (finish)
             break;
     }

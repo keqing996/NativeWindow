@@ -9,12 +9,7 @@ namespace NativeWindow
 
     WindowData::~WindowData()
     {
-        auto itr = _servicesInCreationOrder.rbegin();
-        for (; itr != _servicesInCreationOrder.rend(); ++itr)
-            delete *itr;
-
-        _servicesInCreationOrder.clear();
-        _serviceMap.clear();
+        ClearService();
     }
 
     void* WindowData::GetWindowHandle() const
@@ -27,23 +22,39 @@ namespace NativeWindow
         return _servicesInCreationOrder;
     }
 
-    Service* WindowData::AddService(ServiceType type)
+    void WindowData::ClearService()
+    {
+        auto itr = _servicesInCreationOrder.rbegin();
+        for (; itr != _servicesInCreationOrder.rend(); ++itr)
+            delete *itr;
+
+        _servicesInCreationOrder.clear();
+        _serviceMap.clear();
+    }
+
+    bool WindowData::AddService(ServiceType type)
     {
         auto itr = _serviceMap.find(type);
         if (itr != _serviceMap.end())
             return itr->second;
 
+        auto pConflictService* = Service::Get
+
         auto pDependentService = Service::GetServiceDependent(type);
         if (pDependentService != nullptr)
         {
             for (auto dependentServiceType: *pDependentService)
-                AddService(dependentServiceType);
+            {
+                bool succ = AddService(dependentServiceType);
+                if (!succ)
+                    return false;
+            }
         }
 
         Service* service = Service::CreateService(_hWindow, type);
         _serviceMap[type] = service;
         _servicesInCreationOrder.push_back(service);
 
-        return service;
+        return service != nullptr;
     }
 }

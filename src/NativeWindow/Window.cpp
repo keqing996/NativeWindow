@@ -387,12 +387,16 @@ namespace NativeWindow
         // Icon
         if (_pWindowState->hIcon != nullptr)
             ::DestroyIcon(static_cast<HICON>(_pWindowState->hIcon));
+
+        // Clear service
+        _pWindowState->ClearService();
+
+        // Reset window data
+        _pWindowState.reset();
     }
 
     void Window::OnWindowPostDestroy()
     {
-        _pWindowState.reset();
-
         // Global counting
         gGlobalWindowsCount--;
 
@@ -453,7 +457,7 @@ namespace NativeWindow
             SetCursorLimitedInWindow(true);
     }
 
-    void Window::EventLoop(bool* windowDestroyed)
+    void Window::Loop(const std::function<void()>& loopFunction)
     {
         // Fetch new event
         MSG message;
@@ -463,18 +467,21 @@ namespace NativeWindow
             ::DispatchMessageW(&message);
         }
 
-        bool windowValid = IsWindowValid();
-        *windowDestroyed = !windowValid;
+        if (!IsWindowValid())
+            return;
 
-        if (windowValid && _pWindowState != nullptr)
-        {
-            // Service loop
-            for (auto pService: _pWindowState->GetServices())
-            {
-                if (pService != nullptr)
-                    pService->Loop();
-            }
-        }
+        auto services = _pWindowState->GetServices();
+        for (auto pService: services)
+            pService->BeforeTick();
+
+        if (loopFunction != nullptr)
+            loopFunction();
+
+        for (auto pService: services)
+            pService->AfterTick();
+
+        for (auto pService: services)
+            pService->FinishLoop();
     }
 
     void Window::SetCursorLimitedInWindowInternal(bool doCapture)

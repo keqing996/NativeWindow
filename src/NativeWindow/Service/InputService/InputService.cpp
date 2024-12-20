@@ -104,7 +104,7 @@ namespace NativeWindow
         }
     }
 
-    void InputService::Loop()
+    void InputService::BeforeTick()
     {
         ProcessEventQueue();
     }

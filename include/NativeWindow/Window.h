@@ -35,9 +35,9 @@ namespace NativeWindow
         /// Check is window instance created.
         bool IsWindowValid() const;
 
-        /// Process windows messages.
-        /// @param windowDestroyed True is window destroyed after message process.
-        void EventLoop(bool* windowDestroyed);
+        /// Window main loop.
+        /// @param loopFunction called every frame.
+        void Loop(const std::function<void()>& loopFunction);
 
         /// Get native window's size(client area, without borders, caption bar, etc.).
         std::pair<int, int> GetSize();
