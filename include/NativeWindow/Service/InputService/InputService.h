@@ -9,10 +9,10 @@
 
 namespace NativeWindow
 {
-    class InputService: public ServiceIndexWithIndex<ServiceIndex_Input>
+    class InputService: public Service, public ServiceTypeGetter<ServiceType::Input>
     {
     public:
-        InputService();
+        explicit InputService(void* hWnd);
 
     public:
         void ProcessWinMessage(void* hWnd, uint32_t msg, void* wPara, void* lPara) override;

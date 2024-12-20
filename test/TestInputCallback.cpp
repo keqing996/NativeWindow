@@ -8,9 +8,8 @@ int main()
 {
     Window window;
 
-    window.AddService<InputService>();
-
-    auto inputService = window.GetService<InputService>();
+    window.Create(800, 600, "Test", WindowStyle::DefaultStyle());
+    auto inputService = window.AddService<InputService>();
 
     inputService->SetCallbackOnMouseMove([](std::pair<int, int> source, std::pair<int, int> target) -> void
     {
@@ -32,8 +31,6 @@ int main()
     {
         std::cout << "[BtnRelease]  " << ButtonTypeUtility::GetName(btn) << std::endl;
     });
-
-    window.Create(800, 600, "Test", WindowStyle::DefaultStyle());
 
     while (true)
     {

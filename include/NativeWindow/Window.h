@@ -9,7 +9,6 @@
 #include "Detail/WindowStyle.h"
 #include "Detail/WindowData.h"
 #include "NativeWindow/Utility/NonCopyable.h"
-#include "Service/Service.h"
 
 namespace NativeWindow
 {

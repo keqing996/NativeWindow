@@ -1,15 +1,30 @@
 #pragma once
 
+#include <vector>
 #include <cstdint>
 
 namespace NativeWindow
 {
-    enum ServiceIndex: int
+    enum class ServiceType: int
     {
-        ServiceIndex_Input = 0,
-        ServiceIndex_OpenGL,
-        ServiceIndex_ImGui,
-        ServiceIndex_Count
+        Input,
+        OpenGL,
+        ImGuiOpenGL,
+    };
+
+    template<ServiceType Type>
+    class ServiceTypeGetter
+    {
+    public:
+        static ServiceType ServiceType()
+        {
+            return Type;
+        }
+
+        enum ServiceType ServiceType() const
+        {
+            return Type;
+        }
     };
 
     class Service
@@ -18,24 +33,16 @@ namespace NativeWindow
         virtual ~Service() = default;
 
     public:
-        void SetWindowHandle(void* hWnd);
-
-    public:
         virtual void ProcessWinMessage(void* hWnd, uint32_t msg, void* wPara, void* lPara) = 0;
         virtual void Loop() = 0;
 
-    protected:
-        void* _hWnd = nullptr;;
-    };
-
-    template<ServiceIndex Index>
-    class ServiceIndexWithIndex: public Service
-    {
     public:
-        int static ServiceIndex()
-        {
-            return Index;
-        }
+        static Service* CreateService(void* hWnd, ServiceType type);
+
+    protected:
+        explicit Service(void* hWnd);
+
+        void* _hWnd;
     };
 
 }

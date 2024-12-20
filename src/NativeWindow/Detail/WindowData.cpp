@@ -5,8 +5,6 @@ namespace NativeWindow
     WindowData::WindowData(void* windowHandle)
         : _hWindow(windowHandle)
     {
-        _services.resize(ServiceIndex_Count);
-        std::fill(_services.begin(), _services.end(), nullptr);
     }
 
     WindowData::~WindowData()
@@ -27,6 +25,6 @@ namespace NativeWindow
 
     const std::vector<Service*>& WindowData::GetServices()
     {
-        return _services;
+        return _servicesInCreationOrder;
     }
 }

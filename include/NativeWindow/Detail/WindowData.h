@@ -1,5 +1,6 @@
 #pragma once
 
+#include <unordered_map>
 #include <vector>
 
 #include "../Service/Service.h"
@@ -39,7 +40,8 @@ namespace NativeWindow
 
     private:
         void* _hWindow = nullptr;
-        std::vector<Service*> _services;
+        std::vector<Service*> _servicesInCreationOrder;
+        std::unordered_map<ServiceType, Service*> _serviceMap;
     };
 
     template<typename T>
@@ -51,16 +53,14 @@ namespace NativeWindow
     template<typename T>
     T* WindowData::AddService()
     {
-        int index = T::ServiceIndex();
-        if (_services[index] == nullptr)
-        {
-            T* service = new T();
-            service->SetWindowHandle(_hWindow);
-            _services[index] = service;
-            return service;
-        }
+        ServiceType type = T::ServiceType();
+        auto itr = _serviceMap.find(type);
+        if (itr != _serviceMap.end())
+            return itr->second;
 
-        return reinterpret_cast<T*>(_services[index]);
+        Service* service = Service::CreateService(_hWindow, type);
+        _serviceMap[type] = service;
+        return service;
     }
 
     template<typename T>
