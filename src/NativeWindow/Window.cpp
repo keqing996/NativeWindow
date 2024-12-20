@@ -459,29 +459,32 @@ namespace NativeWindow
 
     void Window::Loop(const std::function<void()>& loopFunction)
     {
-        // Fetch new event
-        MSG message;
-        while (::PeekMessageW(&message, nullptr, 0, 0, PM_REMOVE))
+        while (true)
         {
-            ::TranslateMessage(&message);
-            ::DispatchMessageW(&message);
+            // Fetch new event
+            MSG message;
+            while (::PeekMessageW(&message, nullptr, 0, 0, PM_REMOVE))
+            {
+                ::TranslateMessage(&message);
+                ::DispatchMessageW(&message);
+            }
+
+            if (!IsWindowValid())
+                return;
+
+            auto services = _pWindowState->GetServices();
+            for (auto pService: services)
+                pService->BeforeTick();
+
+            if (loopFunction != nullptr)
+                loopFunction();
+
+            for (auto pService: services)
+                pService->AfterTick();
+
+            for (auto pService: services)
+                pService->FinishLoop();
         }
-
-        if (!IsWindowValid())
-            return;
-
-        auto services = _pWindowState->GetServices();
-        for (auto pService: services)
-            pService->BeforeTick();
-
-        if (loopFunction != nullptr)
-            loopFunction();
-
-        for (auto pService: services)
-            pService->AfterTick();
-
-        for (auto pService: services)
-            pService->FinishLoop();
     }
 
     void Window::SetCursorLimitedInWindowInternal(bool doCapture)

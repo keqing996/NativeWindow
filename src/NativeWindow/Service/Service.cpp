@@ -38,6 +38,15 @@ namespace NativeWindow
         return nullptr;
     }
 
+    const std::vector<ServiceType>* Service::GetServiceConflict(ServiceType type)
+    {
+        auto itr = gConflictMap.find(type);
+        if (itr != gConflictMap.end())
+            return &itr->second;
+
+        return nullptr;
+    }
+
     Service* Service::CreateService(void* hWnd, ServiceType type)
     {
         switch (type)

@@ -9,7 +9,9 @@ int main()
     Window window;
 
     window.Create(800, 600, "Test", WindowStyle::DefaultStyle());
-    auto inputService = window.AddService<InputService>();
+    window.AddService<InputService>();
+
+    auto inputService = window.GetService<InputService>();
 
     inputService->SetCallbackOnMouseMove([](std::pair<int, int> source, std::pair<int, int> target) -> void
     {
@@ -32,19 +34,14 @@ int main()
         std::cout << "[BtnRelease]  " << ButtonTypeUtility::GetName(btn) << std::endl;
     });
 
-    while (true)
+    window.Loop([&]()->void
     {
-        bool finish;
-        window.Loop(&finish);
-        if (finish)
-            break;
-
         if (inputService->IsButtonPressed(ButtonType::KeyboardU))
         {
             bool currentCursorVisible = window.IsCursorVisible();
             window.SetCursorVisible(!currentCursorVisible);
         }
-    }
+    });
 
     system("pause");
 

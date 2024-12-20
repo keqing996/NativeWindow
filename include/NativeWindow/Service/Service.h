@@ -34,7 +34,8 @@ namespace NativeWindow
         virtual void FinishLoop();
 
     public:
-        static const std::vector<ServiceType>* GetServiceDependent(ServiceType);
+        static const std::vector<ServiceType>* GetServiceDependent(ServiceType type);
+        static const std::vector<ServiceType>* GetServiceConflict(ServiceType type);
         static Service* CreateService(void* hWnd, ServiceType type);
 
     protected:

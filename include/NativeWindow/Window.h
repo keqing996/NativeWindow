@@ -136,7 +136,7 @@ namespace NativeWindow
         void SetCallbackOnWindowCursorVisibleChanged(const std::function<void(bool)>& callback);
 
         template<typename T>
-        T* AddService();
+        bool AddService();
 
         template<typename T>
         T* GetService();
@@ -175,10 +175,10 @@ namespace NativeWindow
     };
 
     template<typename T>
-    T* Window::AddService()
+    bool Window::AddService()
     {
         if (_pWindowState == nullptr)
-            return nullptr;
+            return false;
 
         return _pWindowState->AddService<T>();
     }

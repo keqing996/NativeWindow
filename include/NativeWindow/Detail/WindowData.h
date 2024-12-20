@@ -30,7 +30,9 @@ namespace NativeWindow
         void ClearService();
 
     private:
-        bool AddService(ServiceType type);
+        Service* GetServiceInternal(ServiceType type);
+        void AddServiceInternal(ServiceType type);
+        bool CanServiceBeAdded(ServiceType type);
 
     public:
         void* hIcon = nullptr;
@@ -56,19 +58,23 @@ namespace NativeWindow
     }
 
     template<typename T>
-    T* WindowData::AddService()
+    bool WindowData::AddService()
     {
-        Service* result = AddService(T::ServiceType());
-        return reinterpret_cast<T*>(result);
+        if (GetService<T>() != nullptr)
+            return true;
+
+        // Check all conflicts
+        auto serviceType = T::ServiceType();
+        if (!CanServiceBeAdded(serviceType))
+            return false;
+
+        AddServiceInternal(serviceType);
+        return true;
     }
 
     template<typename T>
     T* WindowData::GetService()
     {
-        auto itr = _serviceMap.find(T::ServiceType());
-        if (itr == _serviceMap.end())
-            return nullptr;
-
-        return reinterpret_cast<T*>(*itr);
+        return reinterpret_cast<T*>(GetServiceInternal(T::ServiceType()));
     }
 }
