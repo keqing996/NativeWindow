@@ -17,6 +17,8 @@ namespace NativeWindow
         void BeforeTick() override;
         void AfterTick() override;
 
+        void OnCursorVisibleChanged(bool isVisible) override;
+
     public:
         // Dpi
         float GetDpiScale();

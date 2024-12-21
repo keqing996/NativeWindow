@@ -11,6 +11,7 @@ static int counter = 0;
 ImFont* _pChineseFont = nullptr;
 
 void UpdateMainWindow();
+void UpdateNativeWindowFunctions(Window&);
 
 int main()
 {
@@ -23,7 +24,7 @@ int main()
     auto defaultFontSize = imgui->GetDefaultFontSize();
     _pChineseFont = imgui->CreateImGuiFont(SYSTEM_MSYH_REGULAR_FONT_PATH, defaultFontSize);
 
-    window.Loop([]()-> void
+    window.Loop([&]()-> void
     {
         const ImGuiViewport* mainViewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x, mainViewport->WorkPos.y), ImGuiCond_Always);
@@ -37,6 +38,7 @@ int main()
 
         ImGui::Begin("Hello, world!", nullptr, window_flags);
 
+        UpdateNativeWindowFunctions(window);
         UpdateMainWindow();
 
         ImGui::End();
@@ -191,4 +193,48 @@ void UpdateMainWindow()
     ImGui::DebugTextEncoding("测试");
     ImGui::SeparatorText("中文标题");
     ImGui::PopFont();
+}
+
+void UpdateNativeWindowFunctions(Window& window)
+{
+    ImGui::SeparatorText("Native Window States");
+
+    auto [windowWidth, windowHeight] = window.GetSize();
+    float size[2] = { static_cast<float>(windowWidth), static_cast<float>(windowHeight) };
+    ImGui::InputFloat2("WindowSize", size);
+
+    auto [windowPosX, windowPosY] = window.GetPosition();
+    float pos[2] = { static_cast<float>(windowPosX), static_cast<float>(windowPosY) };
+    ImGui::InputFloat2("WindowPos", pos);
+
+    bool cursorVisible = window.IsCursorVisible();
+    ImGui::Checkbox("CursorVisible", &cursorVisible);
+
+    ImGui::SameLine();
+
+    bool mouseInside = window.IsCursorInsideWindow();
+    ImGui::Checkbox("MouseInsideWindow", &mouseInside);
+
+    ImGui::SameLine();
+
+    bool limitInWindow = window.IsCursorLimitedInWindow();
+    ImGui::Checkbox("LimitInWindow", &limitInWindow);
+
+    ImGui::Bullet();
+    ImGui::Text("Press K to toggle mouse visible");
+
+    ImGui::Bullet();
+    ImGui::Text("Press G to toggle mouse limited in window");
+
+    if (ImGui::IsKeyPressed(ImGuiKey_K))
+    {
+        bool current = window.IsCursorVisible();
+        window.SetCursorVisible(!current);
+    }
+
+    if (ImGui::IsKeyPressed(ImGuiKey_G))
+    {
+        bool current = window.IsCursorLimitedInWindow();
+        window.SetCursorLimitedInWindow(!current);
+    }
 }

@@ -32,6 +32,30 @@ namespace NativeWindow
     {
     }
 
+    void Service::OnWindowMoved(int x, int y)
+    {
+    }
+
+    void Service::OnWindowPreDestroyed()
+    {
+    }
+
+    void Service::OnWindowResized(int width, int height)
+    {
+    }
+
+    void Service::OnWindowFocusChanged(bool isFocus)
+    {
+    }
+
+    void Service::OnCursorEnteredOrLeave(bool isEnter)
+    {
+    }
+
+    void Service::OnCursorVisibleChanged(bool isVisible)
+    {
+    }
+
     const std::vector<ServiceType>* Service::GetServiceDependent(ServiceType type)
     {
         auto itr = gServiceDependentMap.find(type);

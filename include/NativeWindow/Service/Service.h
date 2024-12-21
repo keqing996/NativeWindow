@@ -35,6 +35,13 @@ namespace NativeWindow
         virtual void AfterTick();
         virtual void FinishLoop();
 
+        virtual void OnWindowMoved(int x, int y);
+        virtual void OnWindowPreDestroyed();
+        virtual void OnWindowResized(int width, int height);
+        virtual void OnWindowFocusChanged(bool isFocus);
+        virtual void OnCursorEnteredOrLeave(bool isEnter);
+        virtual void OnCursorVisibleChanged(bool isVisible);
+
     public:
         static const std::vector<ServiceType>* GetServiceDependent(ServiceType type);
         static const std::vector<ServiceType>* GetServiceConflict(ServiceType type);

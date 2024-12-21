@@ -250,6 +250,9 @@ namespace NativeWindow
         cursorVisible = show;
         ::SetCursor(show ? static_cast<HCURSOR>(hCursor) : nullptr);
 
+        for (auto pService: _servicesInCreationOrder)
+            pService->OnCursorVisibleChanged(show);
+
         if (_onWindowCursorVisibleChanged != nullptr)
             _onWindowCursorVisibleChanged(show);
     }
@@ -364,9 +367,9 @@ namespace NativeWindow
     bool Window::IsCursorLimitedInWindow() const
     {
         if (_hWindow == nullptr)
-            return cursorLimitedInWindow;
+            return false;
 
-        return false;
+        return cursorLimitedInWindow;
     }
 
     void Window::OnWindowClose()
@@ -391,6 +394,9 @@ namespace NativeWindow
     {
         if (_hWindow == nullptr)
             return;
+
+        for (auto pService: _servicesInCreationOrder)
+            pService->OnWindowPreDestroyed();
 
         if (_onWindowPreDestroyed != nullptr)
             _onWindowPreDestroyed();
@@ -690,12 +696,15 @@ namespace NativeWindow
             }
             case WM_MOVE:
             {
+                int x = LOWORD(lParam); // left up x
+                int y = HIWORD(lParam); // left up y
+
+                for (auto pService: _servicesInCreationOrder)
+                    pService->OnWindowMoved(x, y);
+
                 if (_onWindowMoved != nullptr)
-                {
-                    int x = LOWORD(lParam); // left up x
-                    int y = HIWORD(lParam); // left up y
                     _onWindowMoved(x, y);
-                }
+
                 break;
             }
             case WM_SIZE:
@@ -703,25 +712,39 @@ namespace NativeWindow
                 auto [newWidth, newHeight] = GetSize();
                 if (wParam != SIZE_MINIMIZED && (lastWidth != newWidth || lastHeight != newHeight))
                 {
+                    for (auto pService: _servicesInCreationOrder)
+                        pService->OnWindowResized(newWidth, newHeight);
+
+                    if (_onWindowResize != nullptr)
+                        _onWindowResize(newWidth, newHeight);
+
                     lastWidth = newWidth;
                     lastHeight = newHeight;
-                    if (_onWindowResize != nullptr)
-                        _onWindowResize(lastWidth, lastHeight);
                 }
                 break;
             }
             case WM_SETFOCUS:
             {
                 SetCursorLimitedInWindowInternal(cursorLimitedInWindow);
+
+                for (auto pService: _servicesInCreationOrder)
+                    pService->OnWindowFocusChanged(true);
+
                 if (_onWindowFocusChanged != nullptr)
                     _onWindowFocusChanged(true);
+
                 break;
             }
             case WM_KILLFOCUS:
             {
                 SetCursorLimitedInWindowInternal(false);
+
+                for (auto pService: _servicesInCreationOrder)
+                    pService->OnWindowFocusChanged(false);
+
                 if (_onWindowFocusChanged != nullptr)
                     _onWindowFocusChanged(false);
+
                 break;
             }
             case WM_MOUSEMOVE:
@@ -746,6 +769,9 @@ namespace NativeWindow
 
                     SetTrackMouseLeave(true);
 
+                    for (auto pService: _servicesInCreationOrder)
+                        pService->OnCursorEnteredOrLeave(true);
+
                     if (_onWindowCursorEnteredOrLeaved != nullptr)
                         _onWindowCursorEnteredOrLeaved(true);
                 }
@@ -760,6 +786,10 @@ namespace NativeWindow
                 if (cursorInsideWindow)
                 {
                     cursorInsideWindow = false;
+
+                    for (auto pService: _servicesInCreationOrder)
+                        pService->OnCursorEnteredOrLeave(false);
+
                     if (_onWindowCursorEnteredOrLeaved != nullptr)
                         _onWindowCursorEnteredOrLeaved(false);
                 }

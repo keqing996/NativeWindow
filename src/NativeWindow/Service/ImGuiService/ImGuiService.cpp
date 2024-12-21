@@ -1,4 +1,5 @@
 #include <locale>
+#include <imgui_internal.h>
 #include <backends/imgui_impl_win32.h>
 #include "NativeWindow/Window.h"
 #include "NativeWindow/Utility/WindowsInclude.h"
@@ -72,6 +73,16 @@ namespace NativeWindow
     void ImGuiService::AfterTick()
     {
         ImGui::Render();
+    }
+
+    void ImGuiService::OnCursorVisibleChanged(bool isVisible)
+    {
+        auto pCurrentContext = ImGui::GetCurrentContext();
+        if (pCurrentContext != nullptr)
+        {
+            ImGuiIO& io = pCurrentContext->IO;
+            io.ConfigFlags |= isVisible ? !ImGuiConfigFlags_NoMouseCursorChange : ImGuiConfigFlags_NoMouseCursorChange;
+        }
     }
 
     float ImGuiService::GetDpiScale()
