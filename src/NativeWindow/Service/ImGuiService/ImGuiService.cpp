@@ -1,6 +1,6 @@
 #include <locale>
-#include <imgui.h>
 #include <backends/imgui_impl_win32.h>
+#include "NativeWindow/Window.h"
 #include "NativeWindow/Utility/WindowsInclude.h"
 #include "NativeWindow/Service/ImGuiService/ImGuiService.h"
 #include "NativeWindow/Service/ImGuiService/Theme/Spectrum.h"
@@ -10,8 +10,8 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 namespace NativeWindow
 {
-    ImGuiService::ImGuiService(void* hWnd)
-        : Service(hWnd)
+    ImGuiService::ImGuiService(Window* pWindow)
+        : Service(pWindow)
     {
         std::locale::global(std::locale("zh_CN.UTF8"));
 
@@ -31,7 +31,7 @@ namespace NativeWindow
         io.LogFilename = nullptr;
 
         // Init front end
-        ImGui_ImplWin32_Init(_hWnd);
+        ImGui_ImplWin32_Init(pWindow->GetWindowHandle<HWND>());
 
         // Init theme
         float dpiScale =  GetDpiScale();
@@ -76,7 +76,7 @@ namespace NativeWindow
 
     float ImGuiService::GetDpiScale()
     {
-        return ImGui_ImplWin32_GetDpiScaleForHwnd(_hWnd);
+        return ImGui_ImplWin32_GetDpiScaleForHwnd(_pWindow->GetWindowHandle<HWND>());
     }
 
     int ImGuiService::GetDefaultFontSize()
@@ -86,7 +86,7 @@ namespace NativeWindow
 
     ImFont* ImGuiService::CreateImGuiFont(void* fontData, int fontDataSize, int fontSize, bool transferDataOwnership)
     {
-        HWND hWnd = static_cast<HWND>(_hWnd);
+        HWND hWnd = _pWindow->GetWindowHandle<HWND>();
         float dpiScale = ImGui_ImplWin32_GetDpiScaleForHwnd(hWnd);
 
         ImFontConfig tempConfig;
@@ -104,8 +104,8 @@ namespace NativeWindow
 
     ImFont* ImGuiService::CreateImGuiFont(const std::string& ttfPath, int fontSize)
     {
-        HWND hWnd = static_cast<HWND>(_hWnd);
-        float dpiScale = ImGui_ImplWin32_GetDpiScaleForHwnd(reinterpret_cast<HWND>(hWnd));
+        HWND hWnd = _pWindow->GetWindowHandle<HWND>();
+        float dpiScale = ImGui_ImplWin32_GetDpiScaleForHwnd(hWnd);
 
         auto pFonts = ImGui::GetIO().Fonts;
         return pFonts->AddFontFromFileTTF(

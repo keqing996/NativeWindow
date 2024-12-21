@@ -12,7 +12,7 @@ namespace NativeWindow
     class InputService: public Service, public ServiceTypeGetter<ServiceType::Input>
     {
     public:
-        explicit InputService(void* hWnd);
+        explicit InputService(Window* pWindow);
 
     public:
         void ProcessWinMessage(void* hWnd, uint32_t msg, void* wPara, void* lPara) override;

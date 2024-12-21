@@ -8,7 +8,7 @@ namespace NativeWindow
     class ImGuiOpenGLService: public ImGuiService
     {
     public:
-        explicit ImGuiOpenGLService(void* hWnd);
+        explicit ImGuiOpenGLService(Window* pWindow);
         ~ImGuiOpenGLService() override;
 
     public:

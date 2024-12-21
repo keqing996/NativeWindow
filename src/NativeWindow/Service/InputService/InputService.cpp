@@ -5,8 +5,8 @@
 
 namespace NativeWindow
 {
-    InputService::InputService(void* hWnd)
-        : Service(hWnd)
+    InputService::InputService(Window* pWindow)
+        : Service(pWindow)
     {
         _mousePos = std::make_pair(-1, -1);
         _mouseWheel = 0;

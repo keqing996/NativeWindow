@@ -8,7 +8,7 @@ namespace NativeWindow
     class OpenGLService: public Service, public ServiceTypeGetter<ServiceType::OpenGL>
     {
     public:
-        explicit OpenGLService(void* hWnd);
+        explicit OpenGLService(Window* pWindow);
         ~OpenGLService() override;
 
     public:

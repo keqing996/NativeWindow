@@ -1,4 +1,4 @@
-
+#include "NativeWindow/Window.h"
 #include "NativeWindow/Service/OpenGLService/OpenGLService.h"
 #include <glad/gl.h>
 #include <glad/wgl.h>
@@ -7,10 +7,10 @@
 
 namespace NativeWindow
 {
-    OpenGLService::OpenGLService(void* hWnd)
-        : Service(hWnd)
+    OpenGLService::OpenGLService(Window* pWindow)
+        : Service(pWindow)
     {
-        _hDeviceHandle = ::GetDC(static_cast<HWND>(_hWnd));
+        _hDeviceHandle = ::GetDC(pWindow->GetWindowHandle<HWND>());
 
         PIXELFORMATDESCRIPTOR pfd =
                 {
@@ -48,7 +48,7 @@ namespace NativeWindow
 
     OpenGLService::~OpenGLService()
     {
-        HWND hWnd = static_cast<HWND>(_hWnd);
+        HWND hWnd = _pWindow->GetWindowHandle<HWND>();
 
         if (_hDeviceHandle)
         {

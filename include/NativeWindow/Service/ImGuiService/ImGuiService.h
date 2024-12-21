@@ -1,5 +1,7 @@
 #pragma once
 
+#include <imgui.h>
+#include <string>
 #include "../Service.h"
 
 namespace NativeWindow
@@ -7,7 +9,7 @@ namespace NativeWindow
     class ImGuiService: public Service
     {
     public:
-        explicit ImGuiService(void* hWnd);
+        explicit ImGuiService(Window* pWindow);
         ~ImGuiService() override;
 
     public:

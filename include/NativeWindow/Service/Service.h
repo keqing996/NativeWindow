@@ -5,6 +5,8 @@
 
 namespace NativeWindow
 {
+    class Window;
+
     enum class ServiceType: int
     {
         Input,
@@ -28,7 +30,7 @@ namespace NativeWindow
         virtual ~Service() = default;
 
     public:
-        virtual void ProcessWinMessage(void* hWnd, uint32_t msg, void* wPara, void* lPara) = 0;
+        virtual void ProcessWinMessage(void* hWnd, uint32_t msg, void* wPara, void* lPara);
         virtual void BeforeTick();
         virtual void AfterTick();
         virtual void FinishLoop();
@@ -36,12 +38,11 @@ namespace NativeWindow
     public:
         static const std::vector<ServiceType>* GetServiceDependent(ServiceType type);
         static const std::vector<ServiceType>* GetServiceConflict(ServiceType type);
-        static Service* CreateService(void* hWnd, ServiceType type);
 
     protected:
-        explicit Service(void* hWnd);
+        explicit Service(Window* pWindow);
 
-        void* _hWnd;
+        Window* _pWindow;
     };
 
 }

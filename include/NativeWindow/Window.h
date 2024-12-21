@@ -4,10 +4,9 @@
 #include <functional>
 #include <string>
 #include <optional>
-#include <memory>
 
 #include "Detail/WindowStyle.h"
-#include "Detail/WindowData.h"
+#include "Service/Service.h"
 #include "NativeWindow/Utility/NonCopyable.h"
 
 namespace NativeWindow
@@ -52,7 +51,11 @@ namespace NativeWindow
         void SetPosition(int x, int y);
 
         /// Get native window handle, which is HWND in this case.
-        void* GetSystemHandle() const;
+        void* GetWindowHandle() const;
+
+        /// Get native window handle, which is HWND in this case.
+        template<typename T>
+        T GetWindowHandle() const;
 
         /// Set icon of window through bytes in memory.
         /// @param width Icon width.
@@ -141,6 +144,10 @@ namespace NativeWindow
         template<typename T>
         T* GetService();
 
+        const std::vector<Service*>& GetServices();
+
+        void ClearService();
+
     private:
         void SetTrackMouseLeave(bool enable);
         void OnWindowClose();
@@ -151,23 +158,46 @@ namespace NativeWindow
         void SetCursorLimitedInWindowInternal(bool doCapture);
         bool CalculateMouseInsideWindow() const;
 
+        Service* GetServiceInternal(ServiceType type);
+        bool AddServiceInternal(ServiceType type);
+        bool CanServiceBeAdded(ServiceType type);
+
     private:
         friend NativeWindowUtility;
 
     private:
-        std::unique_ptr<WindowData> _pWindowState = nullptr;
+        // Window handle
+        void* _hWindow = nullptr;
 
-        std::function<void()> _onWindowCreated = nullptr;
-        std::function<void(int,int)> _onWindowMoved = nullptr;
-        std::function<bool(uint32_t, void*, void*, int*)> _onWindowMessagePreProcess = nullptr;
-        std::function<bool()> _onWindowTryToClose = nullptr;
-        std::function<void()> _onWindowClosed = nullptr;
-        std::function<void()> _onWindowPreDestroyed = nullptr;
-        std::function<void()> _onWindowPostDestroyed = nullptr;
-        std::function<void(int,int)> _onWindowResize = nullptr;
-        std::function<void(bool)> _onWindowFocusChanged = nullptr;
-        std::function<void(bool)> _onWindowCursorEnteredOrLeaved = nullptr;
-        std::function<void(bool)> _onWindowCursorVisibleChanged = nullptr;
+        // Cursor & Icon
+        void* hIcon = nullptr;
+        void* hCursor = nullptr;
+
+        // State
+        bool cursorVisible = true;
+        bool cursorLimitedInWindow = false;
+        bool cursorInsideWindow = false;
+
+        // Record window size
+        int lastWidth = 0;
+        int lastHeight = 0;
+
+        // Services
+        std::vector<Service*> _servicesInCreationOrder;
+        std::unordered_map<ServiceType, Service*> _serviceMap;
+
+        // Window callbacks
+        std::function<void()>                               _onWindowCreated = nullptr;
+        std::function<void(int,int)>                        _onWindowMoved = nullptr;
+        std::function<bool(uint32_t, void*, void*, int*)>   _onWindowMessagePreProcess = nullptr;
+        std::function<bool()>                               _onWindowTryToClose = nullptr;
+        std::function<void()>                               _onWindowClosed = nullptr;
+        std::function<void()>                               _onWindowPreDestroyed = nullptr;
+        std::function<void()>                               _onWindowPostDestroyed = nullptr;
+        std::function<void(int,int)>                        _onWindowResize = nullptr;
+        std::function<void(bool)>                           _onWindowFocusChanged = nullptr;
+        std::function<void(bool)>                           _onWindowCursorEnteredOrLeaved = nullptr;
+        std::function<void(bool)>                           _onWindowCursorVisibleChanged = nullptr;
 
     private:
         static void RegisterWindowClass();
@@ -175,20 +205,28 @@ namespace NativeWindow
     };
 
     template<typename T>
+    T Window::GetWindowHandle() const
+    {
+        return reinterpret_cast<T>(GetWindowHandle());
+    }
+
+    template<typename T>
     bool Window::AddService()
     {
-        if (_pWindowState == nullptr)
+        if (GetService<T>() != nullptr)
+            return true;
+
+        // Check all conflicts
+        auto serviceType = T::ServiceType();
+        if (!CanServiceBeAdded(serviceType))
             return false;
 
-        return _pWindowState->AddService<T>();
+        return AddServiceInternal(serviceType);
     }
 
     template<typename T>
     T* Window::GetService()
     {
-        if (_pWindowState == nullptr)
-            return nullptr;
-
-        return _pWindowState->GetService<T>();
+        return reinterpret_cast<T*>(GetServiceInternal(T::ServiceType()));
     }
 }

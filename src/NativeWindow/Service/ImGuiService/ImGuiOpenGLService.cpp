@@ -1,12 +1,13 @@
 
 #include <glad/gl.h>
 #include <backends/imgui_impl_opengl3.h>
+#include "NativeWindow/Window.h"
 #include "NativeWindow/Service/ImGuiService/ImGuiOpenGLService.h"
 
 namespace NativeWindow
 {
-    ImGuiOpenGLService::ImGuiOpenGLService(void* hWnd)
-        : ImGuiService(hWnd)
+    ImGuiOpenGLService::ImGuiOpenGLService(Window* pWindow)
+        : ImGuiService(pWindow)
     {
         ImGui_ImplOpenGL3_Init();
     }
