@@ -41,6 +41,9 @@ namespace NativeWindow
         // Loading GL function must after gl context make current.
         ::gladLoaderLoadGL();
         ::gladLoaderLoadWGL(static_cast<HDC>(_hDeviceHandle)); // for wgl extension function
+
+        // Init with vysnc true
+        SetVSync(true);
     }
 
     OpenGLService::~OpenGLService()
@@ -60,4 +63,19 @@ namespace NativeWindow
             _hGLContext = nullptr;
         }
     }
+
+    void OpenGLService::FinishLoop()
+    {
+        ::SwapBuffers(static_cast<HDC>(_hGLContext));
+    }
+
+    void OpenGLService::SetVSync(bool enable)
+    {
+        _enableVSync = enable;
+
+        // wglSwapInterval is from WGL_EXT_swap_control, so maybe null
+        if (wglSwapIntervalEXT != nullptr)
+            ::wglSwapIntervalEXT(_enableVSync);
+    }
+
 }

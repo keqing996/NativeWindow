@@ -4,5 +4,8 @@
 
 namespace NativeWindow
 {
+    class ImGuiOpenGLService: public ImGuiService
+    {
 
+    };
 }
