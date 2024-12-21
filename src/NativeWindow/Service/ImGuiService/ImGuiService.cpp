@@ -63,6 +63,17 @@ namespace NativeWindow
             reinterpret_cast<LPARAM>(wPara), reinterpret_cast<WPARAM>(lPara));
     }
 
+    void ImGuiService::BeforeTick()
+    {
+        ImGui_ImplWin32_NewFrame();
+        ImGui::NewFrame();
+    }
+
+    void ImGuiService::AfterTick()
+    {
+        ImGui::Render();
+    }
+
     float ImGuiService::GetDpiScale()
     {
         return ImGui_ImplWin32_GetDpiScaleForHwnd(_hWnd);

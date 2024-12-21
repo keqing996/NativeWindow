@@ -12,6 +12,8 @@ namespace NativeWindow
 
     public:
         void ProcessWinMessage(void* hWnd, uint32_t msg, void* wPara, void* lPara) override;
+        void BeforeTick() override;
+        void AfterTick() override;
 
     protected:
         // Dpi
