@@ -34,6 +34,8 @@ namespace NativeWindow
     private:
         void ProcessEventQueue();
         ButtonType WinVirtualKeyToButtonType(void* wpara, void* lpara);
+        
+        static void* MapControlKeyLeftAndRight(void* wpara, void* lpara);
 
     private:
         std::vector<InputEvent> _eventQueue;

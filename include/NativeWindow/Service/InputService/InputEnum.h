@@ -81,6 +81,7 @@ namespace NativeWindow
         KeyboardMinus,              /* _ - */
         KeyboardEqual,              /* + = */
         /* Keyboard Other */
+        KeyboardApps,
         KeyboardPause,
         KeyboardPrintScreen,
         KeyboardScrollLock,

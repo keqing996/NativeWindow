@@ -211,6 +211,8 @@ namespace NativeWindow
 
     ButtonType InputService::WinVirtualKeyToButtonType(void* wpara, void* lpara)
     {
+        wpara = MapControlKeyLeftAndRight(wpara, lpara);
+
         WPARAM wParam = reinterpret_cast<WPARAM>(wpara);
         LPARAM lParam = reinterpret_cast<LPARAM>(lpara);
         if ((wParam == VK_RETURN) && (HIWORD(lParam) & KF_EXTENDED))
@@ -346,6 +348,7 @@ namespace NativeWindow
             case VK_OEM_MINUS:  return ButtonType::KeyboardMinus;
             case VK_OEM_PLUS:   return ButtonType::KeyboardEqual;
             /* Keyboard Other */
+            case VK_APPS:               return ButtonType::KeyboardApps;
             case VK_PAUSE:              return ButtonType::KeyboardPause;
             case VK_SNAPSHOT:           return ButtonType::KeyboardPrintScreen;
             case VK_SCROLL:             return ButtonType::KeyboardScrollLock;
@@ -359,5 +362,33 @@ namespace NativeWindow
             /* Finish */
             default:        return ButtonType::Unknown;
         }
+    }
+
+    // https://stackoverflow.com/questions/15966642/how-do-you-tell-lshift-apart-from-rshift-in-wm-keydown-events
+    void* InputService::MapControlKeyLeftAndRight(void* wpara, void* lpara)
+    {
+        WPARAM wParam = reinterpret_cast<WPARAM>(wpara);
+        LPARAM lParam = reinterpret_cast<LPARAM>(lpara);
+
+        UINT scancode = (lParam & 0x00ff0000) >> 16;
+        int extended  = (lParam & 0x01000000) != 0;
+
+        WPARAM newWParam = wParam;
+        switch (wParam)
+        {
+            case VK_SHIFT:
+                newWParam = ::MapVirtualKeyW(scancode, MAPVK_VSC_TO_VK_EX);
+                break;
+            case VK_CONTROL:
+                newWParam = extended ? VK_RCONTROL : VK_LCONTROL;
+                break;
+            case VK_MENU:
+                newWParam = extended ? VK_RMENU : VK_LMENU;
+                break;
+            default:
+                break;
+        }
+
+        return reinterpret_cast<void*>(newWParam);
     }
 }

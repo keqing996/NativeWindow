@@ -123,6 +123,7 @@ namespace NativeWindow
             case ButtonType::KeyboardGraveAccent:   return "KeyboardGraveAccent";
             case ButtonType::KeyboardMinus:         return "KeyboardMinus";
             case ButtonType::KeyboardEqual:         return "KeyboardEqual";
+            case ButtonType::KeyboardApps:          return "KeyboardApps";
             case ButtonType::KeyboardPause:         return "KeyboardPause";
             case ButtonType::KeyboardPrintScreen:   return "KeyboardPrintScreen";
             case ButtonType::KeyboardScrollLock:    return "KeyboardScrollLock";
