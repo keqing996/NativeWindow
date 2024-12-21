@@ -66,7 +66,8 @@ namespace NativeWindow
 
     void OpenGLService::FinishLoop()
     {
-        ::SwapBuffers(static_cast<HDC>(_hGLContext));
+        if (_hDeviceHandle)
+            ::SwapBuffers(static_cast<HDC>(_hDeviceHandle));
     }
 
     void OpenGLService::SetVSync(bool enable)

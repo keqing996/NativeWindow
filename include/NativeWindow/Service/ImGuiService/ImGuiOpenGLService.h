@@ -5,7 +5,7 @@
 
 namespace NativeWindow
 {
-    class ImGuiOpenGLService: public ImGuiService
+    class ImGuiOpenGLService: public ImGuiService, public ServiceTypeGetter<ServiceType::ImGuiOpenGL>
     {
     public:
         explicit ImGuiOpenGLService(Window* pWindow);

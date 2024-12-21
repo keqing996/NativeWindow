@@ -17,7 +17,7 @@ namespace NativeWindow
         void BeforeTick() override;
         void AfterTick() override;
 
-    protected:
+    public:
         // Dpi
         float GetDpiScale();
         // Font

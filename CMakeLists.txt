@@ -65,4 +65,7 @@ if (ENABLE_NATIVE_WINDOW_TEST)
 
     add_executable          (test_input_callback test/TestInputCallback.cpp)
     target_link_libraries   (test_input_callback PUBLIC ${TARGET_NAME})
+
+    add_executable          (test_imgui_opengl test/TestImGuiOpenGL.cpp)
+    target_link_libraries   (test_imgui_opengl PUBLIC ${TARGET_NAME})
 endif ()

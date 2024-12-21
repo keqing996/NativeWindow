@@ -138,15 +138,13 @@ namespace NativeWindow
         /// Called when cursor's visibility changes, true for shown and false for hided.
         void SetCallbackOnWindowCursorVisibleChanged(const std::function<void(bool)>& callback);
 
+        //// Add service.
         template<typename T>
         bool AddService();
 
+        /// Get service pointer.
         template<typename T>
         T* GetService();
-
-        const std::vector<Service*>& GetServices();
-
-        void ClearService();
 
     private:
         void SetTrackMouseLeave(bool enable);
@@ -161,6 +159,8 @@ namespace NativeWindow
         Service* GetServiceInternal(ServiceType type);
         bool AddServiceInternal(ServiceType type);
         bool CanServiceBeAdded(ServiceType type);
+        const std::vector<Service*>& GetServices();
+        void ClearService();
 
     private:
         friend NativeWindowUtility;
